@@ -87,51 +87,242 @@
 <p>这是蚂蚁面试官推荐我读的一个项目的源码，可能因为代码结构比较简单，主要解决兼容性，对于前端小白来说比较有用吧。</p>
 </blockquote>
 <h3 id="Object-getPrototypeOf-O"><a href="#Object-getPrototypeOf-O" class="headerlink" title="Object.getPrototypeOf ( O )"></a>Object.getPrototypeOf ( O )</h3><p>该静态方法用来返回参数的原型对象。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-c77ee47d5e52c997.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if (!Object.getPrototypeOf) &#123;</span><br><span class="line">  Object.getPrototypeOf = function (o) &#123;</span><br><span class="line">    if (o !== Object(o)) &#123; throw TypeError(&quot;Object.getPrototypeOf called on non-object&quot;); &#125;</span><br><span class="line">    return o.__proto__ || o.constructor.prototype || Object.prototype;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以上是polyfill的实现，<strong>proto\</strong>这个属性是一些浏览器自己的实现，不建议使用。<strong>我发现了一点美中不足:</strong>对于Object.create(null)的纯净对象（没有原型的）出现了意外的报错！就想瞎改一下。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">return o.__proto__ || (o.constructor) ?  (o.constructor.prototype || Object.prototype) : null;</span><br></pre></td></tr></table></figure></p>
-<h3 id="Object-getOwnPropertyNames-O"><a href="#Object-getOwnPropertyNames-O" class="headerlink" title="Object.getOwnPropertyNames ( O )"></a>Object.getOwnPropertyNames ( O )</h3><p>该静态方法用来返回参数自身（非原型链）的属性名数组。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-1a7fd51dfd36dcad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">if (typeof Object.getOwnPropertyNames !== &quot;function&quot;) &#123;</span><br><span class="line">  Object.getOwnPropertyNames = function (o) &#123;</span><br><span class="line">    if (o !== Object(o)) &#123; throw TypeError(&quot;Object.getOwnPropertyNames called on non-object&quot;); &#125;</span><br><span class="line">    var props = [], p;</span><br><span class="line">    for (p in o) &#123;</span><br><span class="line">      if (Object.prototype.hasOwnProperty.call(o, p)) &#123;</span><br><span class="line">        props.push(p);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return props;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>一次for-in遍历对象，hasOwnProperty验证对应属性是不是非原型链上，思考过keys方法多好（也不完全一样），兼容性和这个方法完全一样，也就没有意义了。<strong>美中不足：</strong>只能取出可枚举属性。</p>
+<pre><code>if (!Object.getPrototypeOf) {
+  Object.getPrototypeOf = function (o) {
+    if (o !== Object(o)) { throw TypeError(&quot;Object.getPrototypeOf called on non-object&quot;); }
+    return o.__proto__ || o.constructor.prototype || Object.prototype;
+  };
+}
+</code></pre><p>以上是polyfill的实现，<strong>proto\</strong>这个属性是一些浏览器自己的实现，不建议使用。<strong>我发现了一点美中不足:</strong>对于Object.create(null)的纯净对象（没有原型的）出现了意外的报错！就想瞎改一下。</p>
+<pre><code>return o.__proto__ || (o.constructor) ?  (o.constructor.prototype || Object.prototype) : null;
+</code></pre><h3 id="Object-getOwnPropertyNames-O"><a href="#Object-getOwnPropertyNames-O" class="headerlink" title="Object.getOwnPropertyNames ( O )"></a>Object.getOwnPropertyNames ( O )</h3><p>该静态方法用来返回参数自身（非原型链）的属性名数组。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-1a7fd51dfd36dcad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
+<pre><code>if (typeof Object.getOwnPropertyNames !== &quot;function&quot;) {
+  Object.getOwnPropertyNames = function (o) {
+    if (o !== Object(o)) { throw TypeError(&quot;Object.getOwnPropertyNames called on non-object&quot;); }
+    var props = [], p;
+    for (p in o) {
+      if (Object.prototype.hasOwnProperty.call(o, p)) {
+        props.push(p);
+      }
+    }
+    return props;
+  };
+}
+</code></pre><p>一次for-in遍历对象，hasOwnProperty验证对应属性是不是非原型链上，思考过keys方法多好（也不完全一样），兼容性和这个方法完全一样，也就没有意义了。<strong>美中不足：</strong>只能取出可枚举属性。</p>
 <h3 id="Object-create-O-Properties"><a href="#Object-create-O-Properties" class="headerlink" title="Object.create ( O [, Properties] )"></a>Object.create ( O [, Properties] )</h3><p>创建对象，自定义它的原型和自带属性（支持用描述符）。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-c21ce19bfabfc6c2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">if (typeof Object.create !== &quot;function&quot;) &#123;</span><br><span class="line">  Object.create = function (prototype, properties) &#123;</span><br><span class="line">    if (typeof prototype !== &quot;object&quot;) &#123; throw TypeError(); &#125;</span><br><span class="line">    function Ctor() &#123;&#125;</span><br><span class="line">    Ctor.prototype = prototype;</span><br><span class="line">    var o = new Ctor();</span><br><span class="line">    if (prototype) &#123; o.constructor = Ctor; &#125;</span><br><span class="line">    if (properties !== undefined) &#123;</span><br><span class="line">      if (properties !== Object(properties)) &#123; throw TypeError(); &#125;</span><br><span class="line">      Object.defineProperties(o, properties);</span><br><span class="line">    &#125;</span><br><span class="line">    return o;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>内部创建了一个构造函数，写了一个原型模式。o.constructor = Ctor;这个我就不太懂了。<strong>constructor</strong>这个属性本来就慎用（除非我们了解它的机制，就是初始的松散的对应关系），我觉得指向Object比这样好。</p>
-<h3 id="Object-defineProperty-O-P-Attributes"><a href="#Object-defineProperty-O-P-Attributes" class="headerlink" title="Object.defineProperty( O, P, Attributes )"></a>Object.defineProperty( O, P, Attributes )</h3><p>该方法用来配置对象的属性描述符。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-6ef744b86d277fea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">(function() &#123;</span><br><span class="line">  if (!Object.defineProperty ||</span><br><span class="line">      !(function () &#123; try &#123; Object.defineProperty(&#123;&#125;, &apos;x&apos;, &#123;&#125;); return true; &#125; catch (e) &#123; return false; &#125; &#125; ())) &#123;</span><br><span class="line">    var orig = Object.defineProperty;</span><br><span class="line">    Object.defineProperty = function (o, prop, desc) &#123;</span><br><span class="line">      // In IE8 try built-in implementation for defining properties on DOM prototypes.</span><br><span class="line">      if (orig) &#123; try &#123; return orig(o, prop, desc); &#125; catch (e) &#123;&#125; &#125;</span><br><span class="line"></span><br><span class="line">      if (o !== Object(o)) &#123; throw TypeError(&quot;Object.defineProperty called on non-object&quot;); &#125;</span><br><span class="line">      if (Object.prototype.__defineGetter__ &amp;&amp; (&apos;get&apos; in desc)) &#123;</span><br><span class="line">        Object.prototype.__defineGetter__.call(o, prop, desc.get);</span><br><span class="line">      &#125;</span><br><span class="line">      if (Object.prototype.__defineSetter__ &amp;&amp; (&apos;set&apos; in desc)) &#123;</span><br><span class="line">        Object.prototype.__defineSetter__.call(o, prop, desc.set);</span><br><span class="line">      &#125;</span><br><span class="line">      if (&apos;value&apos; in desc) &#123;</span><br><span class="line">        o[prop] = desc.value;</span><br><span class="line">      &#125;</span><br><span class="line">      return o;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;());</span><br></pre></td></tr></table></figure></p>
-<p>为什么是一个自运行函数呢？orig! 通过<strong>defineGetter\</strong>和<strong>defineSetter\</strong>设置get和set方法，value自然赋值就可以，可惜无法设置其他描述符。</p>
+<pre><code>if (typeof Object.create !== &quot;function&quot;) {
+  Object.create = function (prototype, properties) {
+    if (typeof prototype !== &quot;object&quot;) { throw TypeError(); }
+    function Ctor() {}
+    Ctor.prototype = prototype;
+    var o = new Ctor();
+    if (prototype) { o.constructor = Ctor; }
+    if (properties !== undefined) {
+      if (properties !== Object(properties)) { throw TypeError(); }
+      Object.defineProperties(o, properties);
+    }
+    return o;
+  };
+}
+</code></pre><p>内部创建了一个构造函数，写了一个原型模式。o.constructor = Ctor;这个我就不太懂了。<strong>constructor</strong>这个属性本来就慎用（除非我们了解它的机制，就是初始的松散的对应关系），我觉得指向Object比这样好。</p>
+<h3 id="Object-defineProperty-O-P-Attributes"><a href="#Object-defineProperty-O-P-Attributes" class="headerlink" title="Object.defineProperty( O, P, Attributes )"></a>Object.defineProperty( O, P, Attributes )</h3><p>该方法用来配置对象的属性描述符。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-6ef744b86d277fea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
+<pre><code>(function() {
+  if (!Object.defineProperty ||
+      !(function () { try { Object.defineProperty({}, &#39;x&#39;, {}); return true; } catch (e) { return false; } } ())) {
+    var orig = Object.defineProperty;
+    Object.defineProperty = function (o, prop, desc) {
+      // In IE8 try built-in implementation for defining properties on DOM prototypes.
+      if (orig) { try { return orig(o, prop, desc); } catch (e) {} }
+
+      if (o !== Object(o)) { throw TypeError(&quot;Object.defineProperty called on non-object&quot;); }
+      if (Object.prototype.__defineGetter__ &amp;&amp; (&#39;get&#39; in desc)) {
+        Object.prototype.__defineGetter__.call(o, prop, desc.get);
+      }
+      if (Object.prototype.__defineSetter__ &amp;&amp; (&#39;set&#39; in desc)) {
+        Object.prototype.__defineSetter__.call(o, prop, desc.set);
+      }
+      if (&#39;value&#39; in desc) {
+        o[prop] = desc.value;
+      }
+      return o;
+    };
+  }
+}());
+</code></pre><p>为什么是一个自运行函数呢？orig! 通过<strong>defineGetter\</strong>和<strong>defineSetter\</strong>设置get和set方法，value自然赋值就可以，可惜无法设置其他描述符。</p>
 <h3 id="Object-defineProperties-O-Properties"><a href="#Object-defineProperties-O-Properties" class="headerlink" title="Object.defineProperties ( O, Properties )"></a>Object.defineProperties ( O, Properties )</h3><p>批量进行Object.defineProperty操作<br><img src="https://upload-images.jianshu.io/upload_images/8553902-9bba34866aaa6516.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">if (typeof Object.defineProperties !== &quot;function&quot;) &#123;</span><br><span class="line">  Object.defineProperties = function (o, properties) &#123;</span><br><span class="line">    if (o !== Object(o)) &#123; throw TypeError(&quot;Object.defineProperties called on non-object&quot;); &#125;</span><br><span class="line">    var name;</span><br><span class="line">    for (name in properties) &#123;</span><br><span class="line">      if (Object.prototype.hasOwnProperty.call(properties, name)) &#123;</span><br><span class="line">        Object.defineProperty(o, name, properties[name]);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return o;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>if (Object.prototype.hasOwnProperty.call(properties, name))可以规避原型链上的属性。</p>
+<pre><code>if (typeof Object.defineProperties !== &quot;function&quot;) {
+  Object.defineProperties = function (o, properties) {
+    if (o !== Object(o)) { throw TypeError(&quot;Object.defineProperties called on non-object&quot;); }
+    var name;
+    for (name in properties) {
+      if (Object.prototype.hasOwnProperty.call(properties, name)) {
+        Object.defineProperty(o, name, properties[name]);
+      }
+    }
+    return o;
+  };
+}
+</code></pre><p>if (Object.prototype.hasOwnProperty.call(properties, name))可以规避原型链上的属性。</p>
 <h3 id="Object-keys-O"><a href="#Object-keys-O" class="headerlink" title="Object.keys ( O )"></a>Object.keys ( O )</h3><p>返回参数对象自身可枚举属性名数组。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-f0f698823143e0c1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">if (!Object.keys) &#123;</span><br><span class="line">  Object.keys = function (o) &#123;</span><br><span class="line">    if (o !== Object(o)) &#123; throw TypeError(&apos;Object.keys called on non-object&apos;); &#125;</span><br><span class="line">    var ret = [], p;</span><br><span class="line">    for (p in o) &#123;</span><br><span class="line">      if (Object.prototype.hasOwnProperty.call(o, p)) &#123;</span><br><span class="line">        ret.push(p);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return ret;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<blockquote>
+<pre><code>if (!Object.keys) {
+  Object.keys = function (o) {
+    if (o !== Object(o)) { throw TypeError(&#39;Object.keys called on non-object&#39;); }
+    var ret = [], p;
+    for (p in o) {
+      if (Object.prototype.hasOwnProperty.call(o, p)) {
+        ret.push(p);
+      }
+    }
+    return ret;
+  };
+}
+</code></pre><blockquote>
 <p>对比Object.getOwnPropertyNames发现实现的方法一样，也是无奈。</p>
 </blockquote>
 <h3 id="Function-prototype-bind-thisArg-arg1-arg2-…"><a href="#Function-prototype-bind-thisArg-arg1-arg2-…" class="headerlink" title="Function.prototype.bind ( thisArg [, arg1 [, arg2, … ]] )"></a>Function.prototype.bind ( thisArg [, arg1 [, arg2, … ]] )</h3><p>这个方法可以用来拷贝函数，函数柯里化，绑定this。。。。。。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-98700b949aa786a5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">if (!Function.prototype.bind) &#123;</span><br><span class="line">  Function.prototype.bind = function (o) &#123;</span><br><span class="line">    if (typeof this !== &apos;function&apos;) &#123; throw TypeError(&quot;Bind must be called on a function&quot;); &#125;</span><br><span class="line"></span><br><span class="line">    var args = Array.prototype.slice.call(arguments, 1),</span><br><span class="line">        self = this,</span><br><span class="line">        nop = function() &#123;&#125;,</span><br><span class="line">        bound = function () &#123;</span><br><span class="line">          return self.apply(this instanceof nop ? this : o,</span><br><span class="line">                            args.concat(Array.prototype.slice.call(arguments)));</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">    if (this.prototype)</span><br><span class="line">      nop.prototype = this.prototype;</span><br><span class="line">    bound.prototype = new nop();</span><br><span class="line">    return bound;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>个人觉得args.concat(Array.prototype.slice.call(arguments)))还挺精妙的，参数拼接再apply调用，而且还做了函数原型链的继承，自己写就考虑不到。</p>
+<pre><code>if (!Function.prototype.bind) {
+  Function.prototype.bind = function (o) {
+    if (typeof this !== &#39;function&#39;) { throw TypeError(&quot;Bind must be called on a function&quot;); }
+
+    var args = Array.prototype.slice.call(arguments, 1),
+        self = this,
+        nop = function() {},
+        bound = function () {
+          return self.apply(this instanceof nop ? this : o,
+                            args.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    if (this.prototype)
+      nop.prototype = this.prototype;
+    bound.prototype = new nop();
+    return bound;
+  };
+}
+</code></pre><p>个人觉得args.concat(Array.prototype.slice.call(arguments)))还挺精妙的，参数拼接再apply调用，而且还做了函数原型链的继承，自己写就考虑不到。</p>
 <h3 id="Array-isArray-arg"><a href="#Array-isArray-arg" class="headerlink" title="Array.isArray ( arg )"></a>Array.isArray ( arg )</h3><p>顾名思义，判断参数是不是数组。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-995d7bd711d3f3a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Array.isArray = Array.isArray || function (o) &#123; return Boolean(o &amp;&amp; Object.prototype.toString.call(Object(o)) === &apos;[object Array]&apos;); &#125;;</span><br></pre></td></tr></table></figure>
-<p>意料之外，还有这种类型检查的方法，大概是利用了，Array、Function等从Object托生出来之后重写了toString，调用老的toString。<em>function也可以如此判断。</em></p>
+<pre><code>Array.isArray = Array.isArray || function (o) { return Boolean(o &amp;&amp; Object.prototype.toString.call(Object(o)) === &#39;[object Array]&#39;); };
+</code></pre><p>意料之外，还有这种类型检查的方法，大概是利用了，Array、Function等从Object托生出来之后重写了toString，调用老的toString。<em>function也可以如此判断。</em></p>
 <h3 id="Array-prototype-indexOf-searchElement-fromIndex"><a href="#Array-prototype-indexOf-searchElement-fromIndex" class="headerlink" title="Array.prototype.indexOf ( searchElement [ , fromIndex ] )"></a>Array.prototype.indexOf ( searchElement [ , fromIndex ] )</h3><p><img src="https://upload-images.jianshu.io/upload_images/8553902-482f3721e851bb51.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">if (!Array.prototype.indexOf) &#123;</span><br><span class="line">  Array.prototype.indexOf = function (searchElement /*, fromIndex */) &#123;</span><br><span class="line">    if (this === void 0 || this === null) &#123; throw TypeError(); &#125;</span><br><span class="line">    var t = Object(this);</span><br><span class="line">    var len = t.length &gt;&gt;&gt; 0;</span><br><span class="line">    if (len === 0) &#123; return -1; &#125;</span><br><span class="line">    var n = 0;</span><br><span class="line">    if (arguments.length &gt; 0) &#123;</span><br><span class="line">      n = Number(arguments[1]);</span><br><span class="line">      if (isNaN(n)) &#123;</span><br><span class="line">        n = 0;</span><br><span class="line">      &#125; else if (n !== 0 &amp;&amp; n !== (1 / 0) &amp;&amp; n !== -(1 / 0)) &#123;</span><br><span class="line">        n = (n &gt; 0 || -1) * Math.floor(Math.abs(n));</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (n &gt;= len) &#123; return -1; &#125;</span><br><span class="line">    var k = n &gt;= 0 ? n : Math.max(len - Math.abs(n), 0);</span><br><span class="line">    for (; k &lt; len; k++) &#123;</span><br><span class="line">      if (k in t &amp;&amp; t[k] === searchElement) &#123;</span><br><span class="line">        return k;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return -1;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ol>
+<pre><code>if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
+    if (this === void 0 || this === null) { throw TypeError(); }
+    var t = Object(this);
+    var len = t.length &gt;&gt;&gt; 0;
+    if (len === 0) { return -1; }
+    var n = 0;
+    if (arguments.length &gt; 0) {
+      n = Number(arguments[1]);
+      if (isNaN(n)) {
+        n = 0;
+      } else if (n !== 0 &amp;&amp; n !== (1 / 0) &amp;&amp; n !== -(1 / 0)) {
+        n = (n &gt; 0 || -1) * Math.floor(Math.abs(n));
+      }
+    }
+    if (n &gt;= len) { return -1; }
+    var k = n &gt;= 0 ? n : Math.max(len - Math.abs(n), 0);
+    for (; k &lt; len; k++) {
+      if (k in t &amp;&amp; t[k] === searchElement) {
+        return k;
+      }
+    }
+    return -1;
+  };
+}
+</code></pre><ol>
 <li>void 我还以为我看见了C语言，其实js是有void函数的，可以把void 0当成undefined（好处有二：void 0小三个字节；避免非保留字undefined被赋值的情况。）</li>
 <li>t.length &gt;&gt;&gt; 0，开发小白平时鲜有用到位操作，但是位操作真的是利器。无符号右移主要做了什么呢？首先要强转Number类型，转不了置0，然后非整数变整数，最后如果是负数，返回负数 + 2的32次方。</li>
 <li>var k = n &gt;= 0 ? n : Math.max(len - Math.abs(n), 0); 负数则从后标志索引位。</li>
 </ol>
 <p>还有就是一直在做参数类型的转化，感觉polyfill对这样一个依靠遍历的常用方法在性能上花了心思。</p>
 <h3 id="Array-prototype-lastIndexOf-searchElement-fromIndex"><a href="#Array-prototype-lastIndexOf-searchElement-fromIndex" class="headerlink" title="Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] )"></a>Array.prototype.lastIndexOf ( searchElement [ , fromIndex ] )</h3><p><img src="https://upload-images.jianshu.io/upload_images/8553902-407427f0be40687d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">if (!Array.prototype.lastIndexOf) &#123;</span><br><span class="line">  Array.prototype.lastIndexOf = function (searchElement /*, fromIndex*/) &#123;</span><br><span class="line">    if (this === void 0 || this === null) &#123; throw TypeError(); &#125;</span><br><span class="line"></span><br><span class="line">    var t = Object(this);</span><br><span class="line">    var len = t.length &gt;&gt;&gt; 0;</span><br><span class="line">    if (len === 0) &#123; return -1; &#125;</span><br><span class="line"></span><br><span class="line">    var n = len;</span><br><span class="line">    if (arguments.length &gt; 1) &#123;</span><br><span class="line">      n = Number(arguments[1]);</span><br><span class="line">      if (n !== n) &#123;</span><br><span class="line">        n = 0;</span><br><span class="line">      &#125; else if (n !== 0 &amp;&amp; n !== (1 / 0) &amp;&amp; n !== -(1 / 0)) &#123;</span><br><span class="line">        n = (n &gt; 0 || -1) * Math.floor(Math.abs(n));</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    var k = n &gt;= 0 ? Math.min(n, len - 1) : len - Math.abs(n);</span><br><span class="line"></span><br><span class="line">    for (; k &gt;= 0; k--) &#123;</span><br><span class="line">      if (k in t &amp;&amp; t[k] === searchElement) &#123;</span><br><span class="line">        return k;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return -1;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>感觉如出一辙。。。。。。</p>
+<pre><code>if (!Array.prototype.lastIndexOf) {
+  Array.prototype.lastIndexOf = function (searchElement /*, fromIndex*/) {
+    if (this === void 0 || this === null) { throw TypeError(); }
+
+    var t = Object(this);
+    var len = t.length &gt;&gt;&gt; 0;
+    if (len === 0) { return -1; }
+
+    var n = len;
+    if (arguments.length &gt; 1) {
+      n = Number(arguments[1]);
+      if (n !== n) {
+        n = 0;
+      } else if (n !== 0 &amp;&amp; n !== (1 / 0) &amp;&amp; n !== -(1 / 0)) {
+        n = (n &gt; 0 || -1) * Math.floor(Math.abs(n));
+      }
+    }
+
+    var k = n &gt;= 0 ? Math.min(n, len - 1) : len - Math.abs(n);
+
+    for (; k &gt;= 0; k--) {
+      if (k in t &amp;&amp; t[k] === searchElement) {
+        return k;
+      }
+    }
+    return -1;
+  };
+}
+</code></pre><p>感觉如出一辙。。。。。。</p>
 <h3 id="Array-prototype-every-callbackfn-thisArg"><a href="#Array-prototype-every-callbackfn-thisArg" class="headerlink" title="Array.prototype.every ( callbackfn [ , thisArg ] )"></a>Array.prototype.every ( callbackfn [ , thisArg ] )</h3><p><img src="https://upload-images.jianshu.io/upload_images/8553902-b7fb6a279cde78ac.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">if (!Array.prototype.every) &#123;</span><br><span class="line">  Array.prototype.every = function (fun /*, thisp */) &#123;</span><br><span class="line">    if (this === void 0 || this === null) &#123; throw TypeError(); &#125;</span><br><span class="line">    var t = Object(this);</span><br><span class="line">    var len = t.length &gt;&gt;&gt; 0;</span><br><span class="line">    if (typeof fun !== &quot;function&quot;) &#123; throw TypeError(); &#125;</span><br><span class="line">    var thisp = arguments[1], i;</span><br><span class="line">    for (i = 0; i &lt; len; i++) &#123;</span><br><span class="line">      if (i in t &amp;&amp; !fun.call(thisp, t[i], i, t)) &#123;</span><br><span class="line">        return false;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return true;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>延续前面的风格，看来polyfill对数组遍历的处理方法是一致的。</p>
+<pre><code>if (!Array.prototype.every) {
+  Array.prototype.every = function (fun /*, thisp */) {
+    if (this === void 0 || this === null) { throw TypeError(); }
+    var t = Object(this);
+    var len = t.length &gt;&gt;&gt; 0;
+    if (typeof fun !== &quot;function&quot;) { throw TypeError(); }
+    var thisp = arguments[1], i;
+    for (i = 0; i &lt; len; i++) {
+      if (i in t &amp;&amp; !fun.call(thisp, t[i], i, t)) {
+        return false;
+      }
+    }
+    return true;
+  };
+}
+</code></pre><p>延续前面的风格，看来polyfill对数组遍历的处理方法是一致的。</p>
 <h5 id="some、forEach、map、filter、reduce、reduceRight（这两个区别比前几个大一点）不想赘述了"><a href="#some、forEach、map、filter、reduce、reduceRight（这两个区别比前几个大一点）不想赘述了" class="headerlink" title="some、forEach、map、filter、reduce、reduceRight（这两个区别比前几个大一点）不想赘述了"></a>some、forEach、map、filter、reduce、reduceRight（这两个区别比前几个大一点）不想赘述了</h5><h3 id="String-prototype-trim"><a href="#String-prototype-trim" class="headerlink" title="String.prototype.trim()"></a>String.prototype.trim()</h3><p>删除字符串两边的空格。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-4aad20f82963b774.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">if (!String.prototype.trim) &#123;</span><br><span class="line">  String.prototype.trim = function () &#123;</span><br><span class="line">    return String(this).replace(/^\s+/, &apos;&apos;).replace(/\s+$/, &apos;&apos;);</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>正则匹配，去前空格，再去后空格就可以了。</p>
+<pre><code>if (!String.prototype.trim) {
+  String.prototype.trim = function () {
+    return String(this).replace(/^\s+/, &#39;&#39;).replace(/\s+$/, &#39;&#39;);
+  };
+}
+</code></pre><p>正则匹配，去前空格，再去后空格就可以了。</p>
 <h4 id="Date-now"><a href="#Date-now" class="headerlink" title="Date.now ( )"></a>Date.now ( )</h4><p>方法返回自1970年1月1日 00:00:00 UTC到当前时间的毫秒数。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-4bed611dac0fc330.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">if (!Date.now) &#123;</span><br><span class="line">  Date.now = function now() &#123;</span><br><span class="line">    return Number(new Date());</span><br><span class="line">  &#125;;</span><br><span class="line">// 这个有多种写法</span><br><span class="line">/* </span><br><span class="line">Date.now1 = function now() &#123;</span><br><span class="line">    return new Date().getTime();</span><br><span class="line">  &#125;;</span><br><span class="line">  Date.now2 = function now() &#123;</span><br><span class="line">    return Number(new Date());</span><br><span class="line">  &#125;;</span><br><span class="line">  Date.now3 = function now() &#123;</span><br><span class="line">    return new Date().valueOf();</span><br><span class="line">  &#125;;</span><br><span class="line"> */</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="Date-prototype-toISOString"><a href="#Date-prototype-toISOString" class="headerlink" title="Date.prototype.toISOString ( )"></a>Date.prototype.toISOString ( )</h3><p>方法返回一个 ISO格式的字符串： <strong>YYYY-MM-DDTHH:mm:ss.sssZ</strong>。时区总是UTC（协调世界时），加一个后缀“Z”标识。</p>
+<pre><code>if (!Date.now) {
+  Date.now = function now() {
+    return Number(new Date());
+  };
+// 这个有多种写法
+/* 
+Date.now1 = function now() {
+    return new Date().getTime();
+  };
+  Date.now2 = function now() {
+    return Number(new Date());
+  };
+  Date.now3 = function now() {
+    return new Date().valueOf();
+  };
+ */
+}
+</code></pre><h3 id="Date-prototype-toISOString"><a href="#Date-prototype-toISOString" class="headerlink" title="Date.prototype.toISOString ( )"></a>Date.prototype.toISOString ( )</h3><p>方法返回一个 ISO格式的字符串： <strong>YYYY-MM-DDTHH:mm:ss.sssZ</strong>。时区总是UTC（协调世界时），加一个后缀“Z”标识。</p>
 <p><img src="https://upload-images.jianshu.io/upload_images/8553902-3785f0320cad2e51.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">if (!Date.prototype.toISOString) &#123;</span><br><span class="line">  Date.prototype.toISOString = function () &#123;</span><br><span class="line">    function pad2(n) &#123; return (&apos;00&apos; + n).slice(-2); &#125;</span><br><span class="line">    function pad3(n) &#123; return (&apos;000&apos; + n).slice(-3); &#125;</span><br><span class="line"></span><br><span class="line">    return this.getUTCFullYear() + &apos;-&apos; +</span><br><span class="line">      pad2(this.getUTCMonth() + 1) + &apos;-&apos; +</span><br><span class="line">      pad2(this.getUTCDate()) + &apos;T&apos; +</span><br><span class="line">      pad2(this.getUTCHours()) + &apos;:&apos; +</span><br><span class="line">      pad2(this.getUTCMinutes()) + &apos;:&apos; +</span><br><span class="line">      pad2(this.getUTCSeconds()) + &apos;.&apos; +</span><br><span class="line">      pad3(this.getUTCMilliseconds()) + &apos;Z&apos;;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code>if (!Date.prototype.toISOString) {
+  Date.prototype.toISOString = function () {
+    function pad2(n) { return (&#39;00&#39; + n).slice(-2); }
+    function pad3(n) { return (&#39;000&#39; + n).slice(-3); }
+
+    return this.getUTCFullYear() + &#39;-&#39; +
+      pad2(this.getUTCMonth() + 1) + &#39;-&#39; +
+      pad2(this.getUTCDate()) + &#39;T&#39; +
+      pad2(this.getUTCHours()) + &#39;:&#39; +
+      pad2(this.getUTCMinutes()) + &#39;:&#39; +
+      pad2(this.getUTCSeconds()) + &#39;.&#39; +
+      pad3(this.getUTCMilliseconds()) + &#39;Z&#39;;
+  };
+}
+</code></pre>
                 <hr>
                 <div>
                     <p>
