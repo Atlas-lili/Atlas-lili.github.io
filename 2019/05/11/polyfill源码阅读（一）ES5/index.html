@@ -5,15 +5,34 @@
   
 
   
-  <title>Hexo</title>
+  <title>polyfill源码阅读（一）ES5 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="这是蚂蚁面试官推荐我读的一个项目的源码，可能因为代码结构比较简单，主要解决兼容性，对于前端小白来说比较有用吧。  Object.getPrototypeOf ( O )该静态方法用来返回参数的原型对象。 123456if (!Object.getPrototypeOf) &amp;#123;  Object.getPrototypeOf = function (o) &amp;#123;    if (o !=">
+<meta property="og:type" content="article">
+<meta property="og:title" content="polyfill源码阅读（一）ES5">
+<meta property="og:url" content="http://yoursite.com/2019/05/11/polyfill源码阅读（一）ES5/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这是蚂蚁面试官推荐我读的一个项目的源码，可能因为代码结构比较简单，主要解决兼容性，对于前端小白来说比较有用吧。  Object.getPrototypeOf ( O )该静态方法用来返回参数的原型对象。 123456if (!Object.getPrototypeOf) &amp;#123;  Object.getPrototypeOf = function (o) &amp;#123;    if (o !=">
 <meta property="og:locale" content="default">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-c77ee47d5e52c997.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-1a7fd51dfd36dcad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-c21ce19bfabfc6c2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-6ef744b86d277fea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-9bba34866aaa6516.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-f0f698823143e0c1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-98700b949aa786a5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-995d7bd711d3f3a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-482f3721e851bb51.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-407427f0be40687d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-b7fb6a279cde78ac.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-4aad20f82963b774.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-4bed611dac0fc330.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-3785f0320cad2e51.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-05-11T10:24:11.326Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo">
+<meta name="twitter:title" content="polyfill源码阅读（一）ES5">
+<meta name="twitter:description" content="这是蚂蚁面试官推荐我读的一个项目的源码，可能因为代码结构比较简单，主要解决兼容性，对于前端小白来说比较有用吧。  Object.getPrototypeOf ( O )该静态方法用来返回参数的原型对象。 123456if (!Object.getPrototypeOf) &amp;#123;  Object.getPrototypeOf = function (o) &amp;#123;    if (o !=">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/8553902-c77ee47d5e52c997.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -60,9 +79,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-polyfill源码阅读（一）ES5" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-polyfill源码阅读（一）ES5" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/05/11/polyfill源码阅读（一）ES5/" class="article-date">
   <time datetime="2019-05-11T10:22:07.000Z" itemprop="datePublished">2019-05-11</time>
@@ -75,8 +92,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/05/11/polyfill源码阅读（一）ES5/">polyfill源码阅读（一）ES5</a>
+    <h1 class="article-title" itemprop="name">
+      polyfill源码阅读（一）ES5
     </h1>
   
 
@@ -142,56 +159,19 @@
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/05/11/hello-world/" class="article-date">
-  <time datetime="2019-05-11T09:47:58.770Z" itemprop="datePublished">2019-05-11</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/05/11/hello-world/">Hello World</a>
-    </h1>
+    <a href="/2019/05/11/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Hello World</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/05/11/hello-world/" data-id="cjvjd4ina000058ume7gf0cg4" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
   
 </article>
-
-
-  
-
 
 </section>
         
