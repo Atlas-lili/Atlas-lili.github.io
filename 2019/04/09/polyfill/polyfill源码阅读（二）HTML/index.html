@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content>
+    <meta name="author" content="Atlas-lili">
+    <meta name="keywords" content>
+    <title>polyfill源码阅读（二）HTML ~ Atlas-lili&#39;s Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/tomorrow-night-eighties.min.css">
+    
+</head>
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>Atlas-lili&#39;s Blog</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://www.abnerchou.me/hexo-theme-react//assets/images/team/whiteboard.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">polyfill源码阅读（二）HTML</p>
+            <br>
+            
+            <p>Tuesday, April 9th 2019, 4:48 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="post-content py-5 z-depth-3 main">
+                <blockquote>
+<p>html部分主要是修改不同浏览器的API的怪异行为。</p>
+<pre><code>(function(global) {
+  &#39;use strict&#39;;
+  if (!(&#39;window&#39; in global &amp;&amp; &#39;document&#39; in global))
+    return;
+    // do something
+})(self)
+</code></pre><p>一段自执行函数的模块封装，内加执行环境的判断确保后面代码的安全。</p>
+</blockquote>
+<h3 id="document-head"><a href="#document-head" class="headerlink" title="document.head"></a>document.head</h3><p>返回当前文档中的 <code>&lt;head&gt;</code> 元素。如果有多个 <code>&lt;head&gt;</code> 元素，则返回第一个。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/8553902-c00af3604dbcaabd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="PC兼容性.png"><br><img src="https://upload-images.jianshu.io/upload_images/8553902-6667fd4a83eec77c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="移动端兼容性"></p>
+<pre><code>if (!(&#39;head&#39; in document))
+    document.head = document.getElementsByTagName(&#39;head&#39;)[0];
+</code></pre><p>这样的写法很容易想到。</p>
+<h3 id="对H5元素的支持"><a href="#对H5元素的支持" class="headerlink" title="对H5元素的支持"></a>对H5元素的支持</h3><pre><code>[
+    &#39;abbr&#39;, &#39;article&#39;, &#39;aside&#39;, &#39;audio&#39;, &#39;bdi&#39;, &#39;canvas&#39;, &#39;data&#39;, &#39;datalist&#39;,
+    &#39;details&#39;, &#39;dialog&#39;, &#39;figcaption&#39;, &#39;figure&#39;, &#39;footer&#39;, &#39;header&#39;, &#39;hgroup&#39;,
+    &#39;main&#39;, &#39;mark&#39;, &#39;meter&#39;, &#39;nav&#39;, &#39;output&#39;, &#39;picture&#39;, &#39;progress&#39;, &#39;section&#39;,
+    &#39;summary&#39;, &#39;template&#39;, &#39;time&#39;, &#39;video&#39;].forEach(function(tag) {
+     document.createElement(tag);
+   });
+</code></pre><p>确保解释不出的新标签解析为行内标签。</p>
+<h3 id="HTMLElement-dataset"><a href="#HTMLElement-dataset" class="headerlink" title="HTMLElement.dataset"></a>HTMLElement.dataset</h3><p>读写节点的自定义属性<br><img src="https://upload-images.jianshu.io/upload_images/8553902-af6272a08f13de5c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="PC兼容性.png"><br><strong>值得注意的是：移动端都不支持！</strong></p>
+<pre><code>if (!(&#39;dataset&#39; in document.createElement(&#39;span&#39;)) &amp;&amp;
+      &#39;Element&#39; in global &amp;&amp; Element.prototype &amp;&amp; Object.defineProperty) {
+    Object.defineProperty(Element.prototype, &#39;dataset&#39;, { get: function() {
+      var result = Object.create(null);
+      for (var i = 0; i &lt; this.attributes.length; ++i) {
+        var attr = this.attributes[i];
+        if (attr.specified &amp;&amp; attr.name.substring(0, 5) === &#39;data-&#39;) {
+          (function(element, name) {
+            var prop = name.replace(/-([a-z])/g, function(m, p) {
+              return p.toUpperCase();
+            });
+            result[prop] = element.getAttribute(&#39;data-&#39; + name); // Read-only, for IE8-
+            Object.defineProperty(result, prop, {
+              get: function() {
+                return element.getAttribute(&#39;data-&#39; + name);
+              },
+              set: function(value) {
+                element.setAttribute(&#39;data-&#39; + name, value);
+              }});
+          }(this, attr.name.substring(5)));
+        }
+      }
+      return result;
+    }});
+  }
+</code></pre><p>实际上是利用get和set监听了每一个自定义属性的改变，对应到节点上。</p>
+<h3 id="atob-和btoa"><a href="#atob-和btoa" class="headerlink" title="atob()和btoa()"></a>atob()和btoa()</h3><p><code>window.atob()</code>对用base-64编码过的字符串进行解码。<code>window.btoa()</code> 方法来编码一个可能在传输过程中出现问题的数据。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/8553902-a89f081fd3f72610.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
+<pre><code>(function() {
+    if (&#39;atob&#39; in global &amp;&amp; &#39;btoa&#39; in global)
+      return;
+    var B64_ALPHABET = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=&quot;;
+    function atob(input) {
+      // do something
+    };
+    function btoa(input) {
+      // do something
+    };
+    global.atob = atob;
+    global.btoa = btoa;
+  }());
+</code></pre><p>atob()</p>
+<pre><code>function atob(input) {
+      input = String(input);
+      var position = 0,
+          output = [],
+          buffer = 0, bits = 0, n;
+
+      input = input.replace(/\s/g, &#39;&#39;);
+      if ((input.length % 4) === 0) { input = input.replace(/=+$/, &#39;&#39;); }
+      if ((input.length % 4) === 1) { throw Error(&quot;InvalidCharacterError&quot;); }
+      if (/[^+/0-9A-Za-z]/.test(input)) { throw Error(&quot;InvalidCharacterError&quot;); }
+
+      while (position &lt; input.length) {
+        n = B64_ALPHABET.indexOf(input.charAt(position));
+        buffer = (buffer &lt;&lt; 6) | n;
+        bits += 6;
+
+        if (bits === 24) {
+          output.push(String.fromCharCode((buffer &gt;&gt; 16) &amp; 0xFF));
+          output.push(String.fromCharCode((buffer &gt;&gt;  8) &amp; 0xFF));
+          output.push(String.fromCharCode(buffer &amp; 0xFF));
+          bits = 0;
+          buffer = 0;
+        }
+        position += 1;
+      }
+
+      if (bits === 12) {
+        buffer = buffer &gt;&gt; 4;
+        output.push(String.fromCharCode(buffer &amp; 0xFF));
+      } else if (bits === 18) {
+        buffer = buffer &gt;&gt; 2;
+        output.push(String.fromCharCode((buffer &gt;&gt; 8) &amp; 0xFF));
+        output.push(String.fromCharCode(buffer &amp; 0xFF));
+      }
+
+      return output.join(&#39;&#39;);
+    };
+</code></pre><p>这就要说到BASE64解码过程了，解码时四个字符为一组（每个字符索引0-63，共24位二进制），每个字符按顺序转成BASE64数组对应索引的二进制形式，此时将二十四位二进制八位一组，对应ASCII码可译出三个字符。<em>=为占位，可以忽略。</em></p>
+<pre><code>function btoa(input) {
+    input = String(input);
+    var position = 0,
+      out = [],
+      o1, o2, o3,
+      e1, e2, e3, e4;
+    if (/[^\x00-\xFF]/.test(input)) { throw Error(&quot;InvalidCharacterError&quot;); }
+    while (position &lt; input.length) {
+      o1 = input.charCodeAt(position++);
+      o2 = input.charCodeAt(position++);
+      o3 = input.charCodeAt(position++);
+      // 111111 112222 222233 333333
+      e1 = o1 &gt;&gt; 2;
+      e2 = ((o1 &amp; 0x3) &lt;&lt; 4) | (o2 &gt;&gt; 4);
+      e3 = ((o2 &amp; 0xf) &lt;&lt; 2) | (o3 &gt;&gt; 6);
+      e4 = o3 &amp; 0x3f;
+      if (position === input.length + 2) {
+        e3 = 64;
+        e4 = 64;
+      }
+      else if (position === input.length + 1) {
+        e4 = 64;
+      }
+      out.push(B64_ALPHABET.charAt(e1),
+        B64_ALPHABET.charAt(e2),
+        B64_ALPHABET.charAt(e3),
+        B64_ALPHABET.charAt(e4));
+    }
+    return out.join(&#39;&#39;);
+  };
+</code></pre><p>编码的过程，将字符串三个一组依次对应ASCII码转成二进制串（位数不足补0，缺整6的倍数补<code>=</code>），六位二进制一组，对应BASE64数组索引的字母，拼接成编码字符串。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;polyfill</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+                    <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
+  </div>
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+
+    
+    
+ 
+</div>
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint linenums');
+              prettyPrint();
+          })
+      </script>
+    
+  
+</body>
+</html>

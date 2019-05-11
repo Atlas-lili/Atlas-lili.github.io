@@ -17,9 +17,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="description" content>
-    <meta name="author" content="John Doe">
+    <meta name="author" content="Atlas-lili">
     <meta name="keywords" content>
-    <title>Hexo</title>
+    <title>Atlas-lili&#39;s Blog</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
@@ -29,10 +29,10 @@
 </head>
 
 <body>
-  <header style="height: 100vh;">
+  <header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
 <div class="container">
-    <a class="navbar-brand" href="/"><strong>Hexo</strong></a>
+    <a class="navbar-brand" href="/"><strong>Atlas-lili&#39;s Blog</strong></a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <div class="animated-icon"><span></span><span></span><span></span></div>
@@ -86,24 +86,7 @@
 <div class="row mb-3">
 
 <div class="col-12 col-md-8 offset-md-2">
-    <a href="/2019/05/11/about/index/" class="h4" style="font-weight: 700;">about</a>
-    
-      <p class="mb-1">...</p>
-    
-    
-      <p>
-        <i class="iconfont icon-riqi2"></i>&nbsp;2019-05-11
-        &nbsp;
-        
-      </p>
-    
-</div>
-</div>
-
-<div class="row mb-3">
-
-<div class="col-12 col-md-8 offset-md-2">
-    <a href="/2019/05/11/polyfill/polyfill源码阅读（一）ES5/" class="h4" style="font-weight: 700;">polyfill源码阅读（一）ES5</a>
+    <a href="/2019/04/18/polyfill/polyfill源码阅读（一）ES5/" class="h4" style="font-weight: 700;">polyfill源码阅读（一）ES5</a>
     
       <p class="mb-1">
 这是蚂蚁面试官推荐我读的一个项目的源码，可能因为代码结构比较简单，主要解决兼容性，对于前端小白来说比较有用吧。
@@ -116,8 +99,13 @@ if (!Object.getPrototypeOf) {
     
     
       <p>
-        <i class="iconfont icon-riqi2"></i>&nbsp;2019-05-11
+        <i class="iconfont icon-riqi2"></i>&nbsp;2019-04-18
         &nbsp;
+        
+            <i class="iconfont icon-cc-tag-more"></i>
+            
+                polyfill&nbsp;
+            
         
       </p>
     
@@ -127,18 +115,31 @@ if (!Object.getPrototypeOf) {
 <div class="row mb-3">
 
 <div class="col-12 col-md-8 offset-md-2">
-    <a href="/2019/05/11/hello-world/" class="h4" style="font-weight: 700;">Hello World</a>
+    <a href="/2019/04/09/polyfill/polyfill源码阅读（二）HTML/" class="h4" style="font-weight: 700;">polyfill源码阅读（二）HTML</a>
     
-      <p class="mb-1">Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick StartCreate a new post$ hexo new &quot;My New Post&quot;
+      <p class="mb-1">
+html部分主要是修改不同浏览器的API的怪异行为。
+(function(global) {
+  &#39;use strict&#39;;
+  if (!(&#39;window&#39; in global &amp;&amp; &#39;document&#39; in global))
+    return;
+    // do something
+})(self)
+一段自执行函数的模块封装，内加执行环境的判断确保后面代码的安全。
 
-More info: Writing
-Run server$ hexo serve...</p>
+document.head返回当前文档中的 &lt;head&gt; 元素。如果有多个 &lt;head&gt; 元素，则返回第一个。
+
+if (!(&...</p>
     
     
       <p>
-        <i class="iconfont icon-riqi2"></i>&nbsp;2019-05-11
+        <i class="iconfont icon-riqi2"></i>&nbsp;2019-04-09
         &nbsp;
+        
+            <i class="iconfont icon-cc-tag-more"></i>
+            
+                polyfill&nbsp;
+            
         
       </p>
     
