@@ -1,107 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
 <head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="utf-8">
-  
-
-  
-  <title>polyfill源码阅读（一）ES5 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="这是蚂蚁面试官推荐我读的一个项目的源码，可能因为代码结构比较简单，主要解决兼容性，对于前端小白来说比较有用吧。  Object.getPrototypeOf ( O )该静态方法用来返回参数的原型对象。 123456if (!Object.getPrototypeOf) &amp;#123;  Object.getPrototypeOf = function (o) &amp;#123;    if (o !=">
-<meta property="og:type" content="article">
-<meta property="og:title" content="polyfill源码阅读（一）ES5">
-<meta property="og:url" content="http://yoursite.com/2019/05/11/polyfill源码阅读（一）ES5/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="这是蚂蚁面试官推荐我读的一个项目的源码，可能因为代码结构比较简单，主要解决兼容性，对于前端小白来说比较有用吧。  Object.getPrototypeOf ( O )该静态方法用来返回参数的原型对象。 123456if (!Object.getPrototypeOf) &amp;#123;  Object.getPrototypeOf = function (o) &amp;#123;    if (o !=">
-<meta property="og:locale" content="default">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-c77ee47d5e52c997.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-1a7fd51dfd36dcad.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-c21ce19bfabfc6c2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-6ef744b86d277fea.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-9bba34866aaa6516.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-f0f698823143e0c1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-98700b949aa786a5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-995d7bd711d3f3a2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-482f3721e851bb51.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-407427f0be40687d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-b7fb6a279cde78ac.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-4aad20f82963b774.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-4bed611dac0fc330.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/8553902-3785f0320cad2e51.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2019-05-11T10:24:11.326Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="polyfill源码阅读（一）ES5">
-<meta name="twitter:description" content="这是蚂蚁面试官推荐我读的一个项目的源码，可能因为代码结构比较简单，主要解决兼容性，对于前端小白来说比较有用吧。  Object.getPrototypeOf ( O )该静态方法用来返回参数的原型对象。 123456if (!Object.getPrototypeOf) &amp;#123;  Object.getPrototypeOf = function (o) &amp;#123;    if (o !=">
-<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/8553902-c77ee47d5e52c997.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  <link rel="stylesheet" href="/css/style.css">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content>
+    <meta name="author" content="John Doe">
+    <meta name="keywords" content>
+    <title>polyfill源码阅读（一）ES5 ~ Hexo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/tomorrow-night-eighties.min.css">
+    
 </head>
-</html>
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-      <div class="outer">
-        <section id="main"><article id="post-polyfill源码阅读（一）ES5" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2019/05/11/polyfill源码阅读（一）ES5/" class="article-date">
-  <time datetime="2019-05-11T10:22:07.000Z" itemprop="datePublished">2019-05-11</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      polyfill源码阅读（一）ES5
-    </h1>
-  
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>Hexo</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://i.imgur.com/oADD1Ip.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">polyfill源码阅读（一）ES5</p>
+            <br>
+            
+            <p>Saturday, May 11th 2019, 6:22 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="post-content py-5 z-depth-3 main">
+                <blockquote>
 <p>这是蚂蚁面试官推荐我读的一个项目的源码，可能因为代码结构比较简单，主要解决兼容性，对于前端小白来说比较有用吧。</p>
 </blockquote>
 <h3 id="Object-getPrototypeOf-O"><a href="#Object-getPrototypeOf-O" class="headerlink" title="Object.getPrototypeOf ( O )"></a>Object.getPrototypeOf ( O )</h3><p>该静态方法用来返回参数的原型对象。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-c77ee47d5e52c997.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
@@ -150,103 +132,66 @@
 <h3 id="Date-prototype-toISOString"><a href="#Date-prototype-toISOString" class="headerlink" title="Date.prototype.toISOString ( )"></a>Date.prototype.toISOString ( )</h3><p>方法返回一个 ISO格式的字符串： <strong>YYYY-MM-DDTHH:mm:ss.sssZ</strong>。时区总是UTC（协调世界时），加一个后缀“Z”标识。</p>
 <p><img src="https://upload-images.jianshu.io/upload_images/8553902-3785f0320cad2e51.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">if (!Date.prototype.toISOString) &#123;</span><br><span class="line">  Date.prototype.toISOString = function () &#123;</span><br><span class="line">    function pad2(n) &#123; return (&apos;00&apos; + n).slice(-2); &#125;</span><br><span class="line">    function pad3(n) &#123; return (&apos;000&apos; + n).slice(-3); &#125;</span><br><span class="line"></span><br><span class="line">    return this.getUTCFullYear() + &apos;-&apos; +</span><br><span class="line">      pad2(this.getUTCMonth() + 1) + &apos;-&apos; +</span><br><span class="line">      pad2(this.getUTCDate()) + &apos;T&apos; +</span><br><span class="line">      pad2(this.getUTCHours()) + &apos;:&apos; +</span><br><span class="line">      pad2(this.getUTCMinutes()) + &apos;:&apos; +</span><br><span class="line">      pad2(this.getUTCSeconds()) + &apos;.&apos; +</span><br><span class="line">      pad3(this.getUTCMilliseconds()) + &apos;Z&apos;;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/05/11/polyfill源码阅读（一）ES5/" data-id="cjvjd4io0000158um7n6kxoka" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-  
-    <a href="/2019/05/11/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Hello World</div>
-    </a>
-  
-</nav>
-
-  
-</article>
-
-</section>
-        
-          <aside id="sidebar">
-  
-    
-
-  
-    
-
-  
-    
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li></ul>
-    </div>
+                <hr>
+                <div>
+                    <p>
+                        
+                    </p>
+                </div>
+                <br>
+                
+                    <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
   </div>
 
+        </div>
+    </div>        
+</div>
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2019/05/11/polyfill源码阅读（一）ES5/">polyfill源码阅读（一）ES5</a>
-          </li>
-        
-          <li>
-            <a href="/2019/05/11/hello-world/">Hello World</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
+<br><br><br>
 
+<!-- Comments -->
+<div class="comments" id="comments">
+ 
+</div>
   
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2019 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-    </div>
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
   </div>
 </footer>
-    </div>
-    <nav id="mobile-nav">
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
   
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
     
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-
-
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
-
-
-<script src="/js/script.js"></script>
-
-
-
-  </div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint linenums');
+              prettyPrint();
+          })
+      </script>
+    
+  
 </body>
 </html>
