@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content>
+    <meta name="author" content="Atlas-lili">
+    <meta name="keywords" content>
+    <title>接触并查集结构 ~ Atlas-lili&#39;s Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/tomorrow-night-eighties.min.css">
+    
+</head>
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>Atlas-lili&#39;s Blog</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://www.abnerchou.me/hexo-theme-react//assets/images/team/whiteboard.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">接触并查集结构</p>
+            <br>
+            
+            <p>Sunday, April 28th 2019, 10:17 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="post-content py-5 z-depth-3 main">
+                <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>并查集（Disjoint set或者Union-find set）是一种树型的数据结构（<strong>一定要一次性给定数据源，不支持流的处理</strong>），常用于处理一些不相交集合（Disjoint Sets）的合并及查询问题。</p>
+<p>###基本操作</p>
+<ol>
+<li>可查询两条数据是否存在于同一个集合。</li>
+<li>可合并<strong>两条数据</strong>（任意节点，而不是标准节点）所在集合。<h5 id="（1）合并集合"><a href="#（1）合并集合" class="headerlink" title="（1）合并集合"></a>（1）合并集合</h5></li>
+</ol>
+<p><img src="https://upload-images.jianshu.io/upload_images/8553902-f1ef9a2057d9c975.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="合并过程.png"><br>首先，每个节点由一个size和一对键值对组成（key是我们的data，value是对应的父级，开始父级都是自己）<em>有犹豫key和value是不是非要使用包装对象呢？还是基本类型也可以？    根据内部实现的结构</em><br>合并的过程，举了一个实际的例子。2和1合并，先各自向上找各自树的标志节点<em>即根节点</em>，接着根据标志节点的size将小的树连在大的树的标志节点上，最后更改合并后标志节点的size为合并后的值。<em>为什么标志节点的size可以代表这棵树？    因为这棵树也是合并来的，刚开始大家都是孑然一身。</em></p>
+<h5 id="（2）判断是否在同一集合"><a href="#（2）判断是否在同一集合" class="headerlink" title="（2）判断是否在同一集合"></a>（2）判断是否在同一集合</h5><p>这个过程相对比较清晰。查2和1是否同源，两个节点分别向上查找自己的标志节点，相同即同源。</p>
+<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><p>按照上面的操作有时就会出现一些‘比较深的’树，查找这些枝干上的节点比其他的要费力许多。<strong>自己有点怀疑就举例一次合并的过程。</strong><br><img src="https://upload-images.jianshu.io/upload_images/8553902-08b15a76533f6fcb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="麻烦的例子.png"><br>优化的方案：在查找某条数据的标志节点时，查找完将路径上经过的所有节点改为标志节点的直接子节点。<br>由于查找标志节点在合并和查同源的操作中都有用到，可以有效的避免上面的结构出现。即使不巧就是出现了，不巧还需要走最深的枝干，那么走一次，或者查过路径上的其他节点就可以使下一次变的省力。</p>
+<blockquote>
+<p>这样的结构有什么作用呢？在查找和合并的次数逼近或超过数据量O(n)时，单次操作的时间复杂度约为O(1)常数级。</p>
+</blockquote>
+<h3 id="上code"><a href="#上code" class="headerlink" title="上code"></a>上code</h3><p>实现上可以按构造树（用指针关联）的思路，操作上较为繁琐，而且对于JavaScript不查引用的基本类型数据需要使用包装对象。<br>我采用Map结构<em>（实现Map可以数组、对象模拟，直接用ES6偷个懒）</em>，操作便捷，查表的过程有效避免引用类型的问题。</p>
+<pre><code>class Node{
+    constructor(str){
+
+    }
+}
+class UnionFindSet{
+    constructor(NodeList){
+        this.fatherMap = new Map();
+        this.sizeMap = new Map();
+        for( Node in NodeList){
+            this.fatherMap.set(Node, Node);
+            this.sizeMap.set(Node, 1);
+        }
+    }
+    findHead(node){
+        let father = this.fatherMap.get(node);
+        if(father &amp;&amp; father !== node){
+            father = this.findHead(father);
+        }
+        this.fatherMap.set(node, father);
+        return father;
+    }
+    isSameSet(a, b){
+        return this.findHead(a) === this.findHead(b);
+    }
+    union(a, b){
+        if(!a || !b){
+            return;
+        }
+        let aHead = this.findHead(a),
+         bHead = this.findHead(b);
+        if(aHead !== bHead){
+            let aSize = this.sizeMap.get(aHead),
+             bSize = this.sizeMap.get(bHead);
+            if(aSize &gt; bSize){
+                this.fatherMap.set(bHead, aHead);
+                this.sizeMap.set(aHead, aSize + bSize);
+            } else {
+                this.fatherMap.set(aHead, bHead);
+                this.sizeMap.set(bHead, aSize + bSize);
+            }
+        }
+    }
+}
+</code></pre><p>Node是给出的包装对象，内部可以自己设计，装什么类型的数据，不用Node直接传入基本类型的数组也可以。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;数据结构</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+                    <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
+  </div>
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+
+    
+    
+ 
+</div>
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint linenums');
+              prettyPrint();
+          })
+      </script>
+    
+  
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content>
+    <meta name="author" content="Atlas-lili">
+    <meta name="keywords" content>
+    <title>polyfill源码阅读（四）cssom和dom一 ~ Atlas-lili&#39;s Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/tomorrow-night-eighties.min.css">
+    
+</head>
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>Atlas-lili&#39;s Blog</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://www.abnerchou.me/hexo-theme-react//assets/images/team/whiteboard.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">polyfill源码阅读（四）cssom和dom一</p>
+            <br>
+            
+            <p>Monday, April 22nd 2019, 6:08 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="post-content py-5 z-depth-3 main">
+                <h3 id="cssom"><a href="#cssom" class="headerlink" title="cssom"></a>cssom</h3><p>Element.getBoundingClientRect()方法返回元素的大小及其相对于视口的位置。</p>
+<blockquote>
+<p>// rect 是一个具有四个属性left、top、right、bottom的DOMRect对象<br>//译者注：DOMRect 是 TextRectangle或 ClientRect 的别称，他们是相同的。var rect = obj.getBoundingClientRect();</p>
+</blockquote>
+<pre><code>// Fix for IE8-&#39;s Element.getBoundingClientRect()
+  if (&#39;TextRectangle&#39; in global &amp;&amp; !(&#39;width&#39; in global.TextRectangle.prototype)) {
+    Object.defineProperties(global.TextRectangle.prototype, {
+      width: { get: function() { return this.right - this.left; } },
+      height: { get: function() { return this.bottom - this.top; } }
+    });
+  }
+</code></pre><p>填了两个宽高属性。</p>
+<h3 id="dom"><a href="#dom" class="headerlink" title="dom"></a>dom</h3><h5 id="document-querySelectorAll"><a href="#document-querySelectorAll" class="headerlink" title="document.querySelectorAll"></a>document.querySelectorAll</h5><p>这个是一个广为人知的英雄。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-c99b1898bc4d7bf3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
+<pre><code>document.querySelectorAll = function(selectors) {
+      var style = document.createElement(&#39;style&#39;), elements = [], element;
+      document.documentElement.firstChild.appendChild(style);
+      document._qsa = [];
+      style.styleSheet.cssText = selectors + &#39;{x-qsa:expression(document._qsa &amp;&amp; document._qsa.push(this))}&#39;;
+      window.scrollBy(0, 0);
+      style.parentNode.removeChild(style);
+
+      while (document._qsa.length) {
+        element = document._qsa.shift();
+        element.style.removeAttribute(&#39;x-qsa&#39;);
+        elements.push(element);
+      }
+      document._qsa = null;
+      return elements;
+    };
+</code></pre><p>利用了<code>expression表达式</code>存入<code>document._qsa</code>数组(因为在expression表达式可以操作)，再转入elements数组，去掉刚创建的style标签，去掉自定义属性x-qsa。</p>
+<h5 id="document-querySelector"><a href="#document-querySelector" class="headerlink" title="document.querySelector"></a>document.querySelector</h5><p><img src="https://upload-images.jianshu.io/upload_images/8553902-0871de6b3e0bb14a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
+<pre><code>document.querySelector = function(selectors) {
+      var elements = document.querySelectorAll(selectors);
+      return (elements.length) ? elements[0] : null;
+};
+</code></pre><p>有了document.querySelectorAll自然想到了取第一项。</p>
+<h5 id="document-getElementsByClassName"><a href="#document-getElementsByClassName" class="headerlink" title="document.getElementsByClassName"></a>document.getElementsByClassName</h5><p><img src="https://upload-images.jianshu.io/upload_images/8553902-beecac2d42dc78b0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="兼容性.png"></p>
+<pre><code>document.getElementsByClassName = function(classNames) {
+      classNames = String(classNames).replace(/^|\s+/g, &#39;.&#39;);
+      return document.querySelectorAll(classNames);
+    };
+</code></pre><p>正则匹配在classname前加<code>.</code>，利用document.querySelectorAll匹配。</p>
+<h5 id="nodeType"><a href="#nodeType" class="headerlink" title="nodeType"></a>nodeType</h5><pre><code>[
+    [&#39;ELEMENT_NODE&#39;, 1],
+    [&#39;ATTRIBUTE_NODE&#39;, 2],
+    [&#39;TEXT_NODE&#39;, 3],
+    [&#39;CDATA_SECTION_NODE&#39;, 4],
+    [&#39;ENTITY_REFERENCE_NODE&#39;, 5],
+    [&#39;ENTITY_NODE&#39;, 6],
+    [&#39;PROCESSING_INSTRUCTION_NODE&#39;, 7],
+    [&#39;COMMENT_NODE&#39;, 8],
+    [&#39;DOCUMENT_NODE&#39;, 9],
+    [&#39;DOCUMENT_TYPE_NODE&#39;, 10],
+    [&#39;DOCUMENT_FRAGMENT_NODE&#39;, 11],
+    [&#39;NOTATION_NODE&#39;, 12]
+  ].forEach(function(p) { if (!(p[0] in global.Node)) global.Node[p[0]] = p[1]; });
+</code></pre><p>像上一篇注入readyState一样，注入了nodeType。</p>
+<h5 id="DOMException"><a href="#DOMException" class="headerlink" title="DOMException"></a>DOMException</h5><pre><code>[
+    [&#39;INDEX_SIZE_ERR&#39;, 1],
+    [&#39;DOMSTRING_SIZE_ERR&#39;, 2],
+    [&#39;HIERARCHY_REQUEST_ERR&#39;, 3],
+    [&#39;WRONG_DOCUMENT_ERR&#39;, 4],
+    [&#39;INVALID_CHARACTER_ERR&#39;, 5],
+    [&#39;NO_DATA_ALLOWED_ERR&#39;, 6],
+    [&#39;NO_MODIFICATION_ALLOWED_ERR&#39;, 7],
+    [&#39;NOT_FOUND_ERR&#39;, 8],
+    [&#39;NOT_SUPPORTED_ERR&#39;, 9],
+    [&#39;INUSE_ATTRIBUTE_ERR&#39;, 10],
+    [&#39;INVALID_STATE_ERR&#39;, 11],
+    [&#39;SYNTAX_ERR&#39;, 12],
+    [&#39;INVALID_MODIFICATION_ERR&#39;, 13],
+    [&#39;NAMESPACE_ERR&#39;, 14],
+    [&#39;INVALID_ACCESS_ERR&#39;, 15]
+  ].forEach(function(p) { if (!(p[0] in global.DOMException)) global.DOMException[p[0]] = p[1]; });
+</code></pre><h5 id="Event"><a href="#Event" class="headerlink" title="Event"></a>Event</h5><p>注入了异常事件列表。</p>
+<pre><code>    Event.CAPTURING_PHASE = 1;
+    Event.AT_TARGET  = 2;
+    Event.BUBBLING_PHASE  = 3;
+
+    Object.defineProperties(Event.prototype, {
+      CAPTURING_PHASE: { get: function() { return 1; } },
+      AT_TARGET:       { get: function() { return 2; } },
+      BUBBLING_PHASE:   { get: function() { return 3; } },
+      target: {
+        get: function() {
+          return this.srcElement;
+        }},
+      currentTarget: {
+        get: function() {
+          return this._currentTarget;
+        }},
+      eventPhase: {
+        get: function() {
+          return (this.srcElement === this.currentTarget) ? Event.AT_TARGET : Event.BUBBLING_PHASE;
+        }},
+      bubbles: {
+        get: function() {
+          switch (this.type) {
+          case &#39;click&#39;:
+            // 各种事件类型
+            return true;
+          }
+          return false;
+        }},
+      cancelable: {
+        get: function() {
+          switch (this.type) {
+          case &#39;click&#39;:
+            // 各种事件类型
+            return true;
+          }
+          return false;
+        }}
+    });
+</code></pre><h6 id="currentTarget和target"><a href="#currentTarget和target" class="headerlink" title="currentTarget和target"></a>currentTarget和target</h6><p><strong>currentTarget</strong>指的是事件触发后，冒泡到绑定处理程序的元素，就是绑定事件处理程序的元素，<strong>target</strong>指的是触发事件的元素。</p>
+<h6 id="eventPhase"><a href="#eventPhase" class="headerlink" title="eventPhase"></a>eventPhase</h6><p>指示事件流正在处理哪个阶段。</p>
+<h6 id="bubbles和cancelable"><a href="#bubbles和cancelable" class="headerlink" title="bubbles和cancelable"></a>bubbles和cancelable</h6><p>前者用来表示该事件是否在DOM中冒泡。<br>后者用来表示这个事件是否可以取消。<br>主要判断事件类型是自定义事件还是原生的。</p>
+<pre><code>Object.defineProperties(Event.prototype, {
+     timeStamp: {
+        get: function() {
+          return this._timeStamp;
+        }},
+      stopPropagation: {
+        value: function() {
+          this.cancelBubble = true;
+        }},
+      preventDefault: {
+        value: function() {
+          this.returnValue = false;
+        }},
+      defaultPrevented: {
+        get: function() {
+          return this.returnValue === false;
+        }}
+    });
+</code></pre><h6 id="timeStamp"><a href="#timeStamp" class="headerlink" title="timeStamp"></a>timeStamp</h6><p>事件创建时的时间戳，毫秒级别。按照规定，这个时间戳是距离某个特定时刻的差值，但实际上在浏览器中此处的事件戳的定义有所不同。</p>
+<h6 id="另外三个方法写法就是IE的兼容方案。"><a href="#另外三个方法写法就是IE的兼容方案。" class="headerlink" title="另外三个方法写法就是IE的兼容方案。"></a>另外三个方法写法就是IE的兼容方案。</h6><h6 id="addEventListener和removeEventListener"><a href="#addEventListener和removeEventListener" class="headerlink" title="addEventListener和removeEventListener"></a>addEventListener和removeEventListener</h6><pre><code>function addEventListener(type, listener, useCapture) {
+      if (typeof listener !== &#39;function&#39;) return;
+      if (type === &#39;DOMContentLoaded&#39;) type = &#39;load&#39;;
+      var target = this;
+      var f = function(e) {
+        e._timeStamp = Date.now();
+        e._currentTarget = target;
+        listener.call(this, e);
+        e._currentTarget = null;
+      };
+      this[&#39;_&#39; + type + listener] = f;
+      this.attachEvent(&#39;on&#39; + type, f);
+    }
+
+    function removeEventListener(type, listener, useCapture) {
+      if (typeof listener !== &#39;function&#39;) return;
+      if (type === &#39;DOMContentLoaded&#39;) type = &#39;load&#39;;
+      var f = this[&#39;_&#39; + type + listener];
+      if (f) {
+        this.detachEvent(&#39;on&#39; + type, f);
+        this[&#39;_&#39; + type + listener] = null;
+      }
+    }
+</code></pre><p>利用<strong>attachEvent</strong>和<strong>detachEvent</strong>这俩IE方案。</p>
+<hr>
+<pre><code>[Window, HTMLDocument, Element].forEach(function(o) {
+      o.prototype.addEventListener = addEventListener;
+      o.prototype.removeEventListener = removeEventListener;
+    });
+</code></pre><p>结尾把addEventListener 和removeEventListener注入Window、HTMLDocument、Element。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;polyfill</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+                    <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
+  </div>
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+
+    
+    
+ 
+</div>
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint linenums');
+              prettyPrint();
+          })
+      </script>
+    
+  
+</body>
+</html>

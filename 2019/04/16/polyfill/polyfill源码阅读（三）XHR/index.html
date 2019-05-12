@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content>
+    <meta name="author" content="Atlas-lili">
+    <meta name="keywords" content>
+    <title>polyfill源码阅读（三）XHR ~ Atlas-lili&#39;s Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/tomorrow-night-eighties.min.css">
+    
+</head>
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>Atlas-lili&#39;s Blog</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://www.abnerchou.me/hexo-theme-react//assets/images/team/whiteboard.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">polyfill源码阅读（三）XHR</p>
+            <br>
+            
+            <p>Tuesday, April 16th 2019, 1:49 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="post-content py-5 z-depth-3 main">
+                <blockquote>
+<p>XHR部分主要处理对IE行为的兼容。</p>
+<pre><code>(function(global) {
+  &#39;use strict&#39;;
+  if (!(&#39;window&#39; in global &amp;&amp; &#39;document&#39; in global))
+    return;
+   // do something
+})(self)
+</code></pre><p>上来就是一段对传入环境的判断，看起来比较熟悉。</p>
+<pre><code>global.XMLHttpRequest = global.XMLHttpRequest || function() {
+    try { return new ActiveXObject(&quot;Msxml2.XMLHTTP.6.0&quot;); } catch (_) { }
+    try { return new ActiveXObject(&quot;Msxml2.XMLHTTP.3.0&quot;); } catch (_) { }
+    try { return new ActiveXObject(&quot;Msxml2.XMLHTTP&quot;); } catch (_) { }
+    throw Error(&quot;This browser does not support XMLHttpRequest.&quot;);
+  };
+</code></pre><p>首先对ajax依赖的XHR对象做IE各版本的兼容。</p>
+<pre><code>[
+    [&#39;UNSENT&#39;, 0],
+    [&#39;OPENED&#39;, 1],
+    [&#39;HEADERS_RECEIVED&#39;, 2],
+    [&#39;LOADING&#39;, 3],
+    [&#39;DONE&#39;, 4],
+  ].forEach(function(p) { if (!(p[0] in global.XMLHttpRequest)) global.XMLHttpRequest[p[0]] = p[1]; });
+</code></pre><p>然后是对请求进度的状态码的补全（联想到使用时等于四响应状态200）。</p>
+</blockquote>
+<h3 id="FormData"><a href="#FormData" class="headerlink" title="FormData"></a>FormData</h3><pre><code>  (function() {
+    if (&#39;FormData&#39; in global)
+      return;
+    function FormData(form) {
+      this._data = [];
+      if (!form) return;
+      for (var i = 0; i &lt; form.elements.length; ++i) {
+        var element = form.elements[i];
+        if (element.name !== &#39;&#39;)
+          this.append(element.name, element.value);
+      }
+    }
+    FormData.prototype = {
+      append: function(name, value /*, filename */) {
+        if (&#39;Blob&#39; in global &amp;&amp; value instanceof global.Blob)
+          throw TypeError(&quot;Blob not supported&quot;);
+        name = String(name);
+        this._data.push([name, value]);
+      },
+
+      toString: function() {
+        return this._data.map(function(pair) {
+          return encodeURIComponent(pair[0]) + &#39;=&#39; + encodeURIComponent(pair[1]);
+        }).join(&#39;&amp;&#39;);
+      }
+    };
+  }());
+</code></pre><p>formData用于提取表单元素中的键值对，值得注意的是它用了二维数组而不是对象。</p>
+<pre><code>global.FormData = FormData;
+    var send = global.XMLHttpRequest.prototype.send;
+    global.XMLHttpRequest.prototype.send = function(body) {
+      if (body instanceof FormData) {
+        this.setRequestHeader(&#39;Content-Type&#39;, &#39;application/x-www-form-urlencoded&#39;);
+        arguments[0] = body.toString();
+      }
+      return send.apply(this, arguments);
+    };
+</code></pre><p>最后定制了send对表单提交的表现，（设置请求头），然后调用原生send。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;polyfill</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+                    <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
+  </div>
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+
+    
+    
+ 
+</div>
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint linenums');
+              prettyPrint();
+          })
+      </script>
+    
+  
+</body>
+</html>
