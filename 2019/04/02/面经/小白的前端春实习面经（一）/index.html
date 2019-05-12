@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content>
+    <meta name="author" content="Atlas-lili">
+    <meta name="keywords" content>
+    <title>小白的前端春实习面经（一） ~ Atlas-lili&#39;s Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/tomorrow-night-eighties.min.css">
+    
+</head>
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>Atlas-lili&#39;s Blog</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://www.abnerchou.me/hexo-theme-react//assets/images/team/whiteboard.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">小白的前端春实习面经（一）</p>
+            <br>
+            
+            <p>Tuesday, April 2nd 2019, 5:44 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="post-content py-5 z-depth-3 main">
+                <blockquote>
+<p>本白三月十二日递的蚂蚁金服的内推，至今日半月多惨淡收场，有笑有泪。</p>
+</blockquote>
+<h3 id="在线笔试（十五日左右）"><a href="#在线笔试（十五日左右）" class="headerlink" title="在线笔试（十五日左右）"></a>在线笔试（十五日左右）</h3><ol>
+<li>非递归深度优先</li>
+</ol>
+<pre><code>var tree = {
+    name : &#39;中国&#39;,
+    children : [
+        {    name : &#39;北京&#39;,
+            children : [
+                {    name : &#39;朝阳群众&#39;  },
+                {    name : &#39;海淀区&#39;    },
+                {    name : &#39;昌平区&#39;    }
+            ]
+        },
+        {    name : &#39;浙江省&#39;,
+            children : [
+                {    name : &#39;杭州市&#39;,
+                    code : 0571,      },
+                {    name : &#39;嘉兴市&#39;    },
+                {    name : &#39;绍兴市&#39;    },
+                {    name : &#39;宁波市&#39;    }
+            ]
+        }
+    ]
+};
+var node = dfs(tree, &#39;杭州市&#39;);
+console.log(node);    // { name: &#39;杭州市&#39;, code: 0571 }
+</code></pre><p>本白数构算法比较菜，看了一下网上的实现，是用栈啊！[好神奇]<br>顺便说一下后来看算法基础时的所得，递归的实质是系统帮你压栈，一切递归都能改为非递归，即自己手动压栈。</p>
+<pre><code>function dfs(tree, name){
+    // 请在这里实现
+}
+</code></pre><ol start="2">
+<li>实现大整数相加运算<br><code>`</code><br>var BigInt = function (str) {<br> // your code here<br>this.num = str<br>};<br>BigInt.prototype.plus = function (bigint) {<br> // your code here<br> var str1 = this.num;<br> var str2 = bigint.num;<br> var a = 0,n1 = 0,n2 = 0;<br> var result = [];<br> for(var i = 0;i&lt;Math.max(str1.length,str2.length);i++){<pre><code> n1 = (str1.charAt(str1.length-1-i))?str1.charAt(str1.length-1-i):&#39;0&#39;;
+ n2 = (str2.charAt(str2.length-1-i))?str2.charAt(str2.length-1-i):&#39;0&#39;;
+ n1 = +n1 + a;
+ n2 = +n2;
+ a = Math.floor((n1+n2)/10);
+ result.unshift((n1+n2)%10);
+</code></pre> }<br> if(a){result.unshift(a)}<br> return this.toString(result);<br>};<br>BigInt.prototype.toString = function (result) {<br> // your code here<br> return result.join(‘’)</li>
+</ol>
+<p>};<br>var bigint1 = new BigInt(‘1234232453525454546445451434342153453454545454545454’);<br>var bigint2 = new BigInt(‘1234232453525454546445451434342153453454545454545454’);<br>console.log(bigint1.plus(bigint2));</p>
+<pre><code>这道刚好是一个哥们当天的面试题，想过了当时写就好多了，只不过是原型封装一下。
+3. 拖拽效果
+</code></pre><p><div id="container" style="border:1px solid red; position: absolute; width:100px; height: 100px">something</div></p>
+<script>
+
+<p></script><p></p>
+<pre><code>这个是老问题了，本白还写了事件委托mousemove还绑错位置了（导致效果不跟手）[惭愧]。
+4. 实现自定义事件
+编写一个简单的自定义事件处理器
+// 1. 具备 on 方法绑定事件
+// 2. 具备 off 方法解绑事件
+</code></pre><p>function EventEmitter () {<br>    // TODO<br>  }</p>
+<p>  var emitter = EventEmitter();</p>
+<p>  emitter.on(‘foo’, function(e){<br>    console.log(‘listening foo event 1’, e);<br>  });</p>
+<p>  emitter.on(‘foo’, function(e){<br>    console.log(‘listening foo event 2’, e);<br>  });</p>
+<p>  emitter.on(‘bar’, function(e){<br>    console.log(‘listening bar event’, e);<br>  });</p>
+<p>  // 监听全部事件<br>  emitter.on(‘*’, function(e){<br>    console.log(‘listening all events’);<br>  });</p>
+<p>  emitter.trigger(‘foo’, {name : ‘John’});<br>  emitter.trigger(‘bar’, {name : ‘Sun’});<br>  emitter.trigger(‘*’, {name : ‘Sun’});<br>  emitter.off(‘foo’);</p>
+<pre><code>这个之前没写过，本来想用getter setter但是放弃了，后来证实也不是一回事。胡乱就写完了。
+5. JS继承
+实现Class.create方法，并且实现Class.create()创建的类的extend方法。
+</code></pre><p>var Class = {};<br>Class.create = function(props){<br>  // TODO<br>};<br>var Animal = Class.create({<br>  sleep : function(){<br>    console.log(“zzzzzz~”);<br>  }<br>});<br>var Person = Animal.extend({<br>  constructor : function(){<br>    this.type = “Person”;<br>  },<br>  speak : function(){<br>    console.log(“hello world!”);<br>  }<br>});</p>
+<p>var qitao = new Person(“Qitao”);<br>console.log(Class);<br>console.log(Animal);<br>console.log(Person);<br>console.log(qitao);<br>console.log(qitao instanceof Person);<br>console.log(qitao instanceof Animal);<br><code>`</code><br>继承当时复习到了，写起来没啥问题。</p>
+<h3 id="总部一面（二十日左右）"><a href="#总部一面（二十日左右）" class="headerlink" title="总部一面（二十日左右）"></a>总部一面（二十日左右）</h3><p>整个过程一个小时，两个面试官轮流，主要是过我的笔试题。</p>
+<h5 id="遍历算法"><a href="#遍历算法" class="headerlink" title="遍历算法"></a>遍历算法</h5><ol>
+<li>描述思路</li>
+<li>深度的是啥样？广度的是啥样？</li>
+<li>实现起来用什么数据结构<h5 id="巨大数加法"><a href="#巨大数加法" class="headerlink" title="巨大数加法"></a>巨大数加法</h5></li>
+<li>描述思路</li>
+<li>减法怎么实现（懵住了，最后没答上……）<h5 id="拖拽"><a href="#拖拽" class="headerlink" title="拖拽"></a>拖拽</h5></li>
+<li>描述思路</li>
+<li>事件委托什么时候用</li>
+<li>为啥不跟手？改进？</li>
+<li>一个按钮，按下弹窗，窗口水平垂直居中怎么做？生成的按钮怎么做？<h5 id="自定义事件"><a href="#自定义事件" class="headerlink" title="自定义事件"></a>自定义事件</h5></li>
+<li>描述思路</li>
+<li>两次绑定会怎么样？如何全部触发该事件上的函数。</li>
+<li>JS事件冒泡？捕获？先后顺序？可以调整顺序不？为什么移动端和PC端的表现不一样？chorme内核哪不一样？<h5 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h5></li>
+<li>描述原型链</li>
+<li>属性描述符（三个被面试官引导偏了一个）</li>
+<li>继承应用场景</li>
+</ol>
+<p>然后就是你对前端工程师的看法？</p>
+<p>再后来呢，二十五日我被回绝了，另外生成了一条记录，当天被北京分部捞了。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;面经</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+                    <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
+  </div>
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+
+    
+    
+ 
+</div>
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint linenums');
+              prettyPrint();
+          })
+      </script>
+    
+  
+</body>
+</html>
