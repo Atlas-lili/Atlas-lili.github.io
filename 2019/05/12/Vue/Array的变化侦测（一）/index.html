@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content>
+    <meta name="author" content="Atlas-lili">
+    <meta name="keywords" content>
+    <title>Array的变化侦测（一） ~ Atlas-lili&#39;s Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/tomorrow-night-eighties.min.css">
+    
+</head>
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>Atlas-lili&#39;s Blog</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://www.abnerchou.me/hexo-theme-react//assets/images/team/whiteboard.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">Array的变化侦测（一）</p>
+            <br>
+            
+            <p>Sunday, May 12th 2019, 7:02 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="post-content py-5 z-depth-3 main">
+                <h5 id="如何追踪变化"><a href="#如何追踪变化" class="headerlink" title="如何追踪变化"></a>如何追踪变化</h5><p>为什么对于Array的侦测方式和Object的不同？如下一句push操作，调用的是数组原型上的方法改变数组，不会触发getter/setter。</p>
+<pre><code>this.list.push(1);
+</code></pre><p>在ES6之前，JavaScript并没有提供元编程的能力，足以拦截原型方法。Vue的做法是写自定义方法覆盖原型方法。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-79abdb12aca3fb02.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="使用拦截器覆盖原生原型方法.png"></p>
+<p>用一个拦截器覆盖Array.prototype，每当我们调用原型方法操作数组时，调用的都是自定义方法，就可以跟踪到变化了。</p>
+<h5 id="拦截器"><a href="#拦截器" class="headerlink" title="拦截器"></a>拦截器</h5><p>拦截器和Array.prototype一样也是一个对象，包含的属性也一样，只是一些能改变数组的方法是<strong>处理</strong>过的。<br>整理一下，发现数组原型可以改变数组自身内容的方法有七个：push、pop、shift、unshift、splice、sorte和reverse。</p>
+<pre><code>const arrayProto = Array.prototype;
+export const arrayMethods = Object.create(arrayProto);
+[
+    &#39;push&#39;,
+    &#39;pop&#39;,
+    &#39;shift&#39;,
+    &#39;unshift&#39;,
+    &#39;splice&#39;,
+    &#39;sorte&#39;,
+    &#39;reverse&#39;
+].forEach(function(method){
+    // 缓存原始方法
+    const original = arrayProto[method];
+    Object.defineProperty(arrayMethods, method, {
+        value: function mutator(...args){
+            return original.apply(this, args);
+        },
+        enumerable: false,
+        writeable: ture,
+        configurable: true
+    })
+})
+</code></pre><p>这样我们就可以在mutator函数中做一些事情了，比如发送变化的通知。</p>
+<h5 id="使用拦截器覆盖Array原型"><a href="#使用拦截器覆盖Array原型" class="headerlink" title="使用拦截器覆盖Array原型"></a>使用拦截器覆盖Array原型</h5><pre><code>export class Observer{
+    constructor(value){
+        this.value = value;
+        if(Array.isArray(value)){
+            value.__proto__ = arrayMethods;
+        } else {
+            this.walk(value);
+        }
+    }
+}
+</code></pre><pre><code class="__proto__```其实是Object.getPrototypeOf和Object.setPrototypeOf的早期实现，只是ES6的浏览器支持度不理想。">![使用__proto__覆盖原型.png](https://upload-images.jianshu.io/upload_images/8553902-00e567883f53cc1b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+##### 将拦截器方法挂载到数组属性上
+并不是所有浏览器都支持通过```__proto__```访问原型，所以还要处理不能使用这个非标准属性的情况。
+Vue的做法非常粗暴，直接将arrayMethods身上的方法设置到被侦测数组上。
+</code></pre>
+<p>const hasProto = ‘<strong>proto</strong>‘ in {};<br>const arrayKeys = Object.getOwnPropertyNames(arrayMethods);</p>
+<p>export class Observer{<br>    constructor(value){<br>        this.value = value;<br>        if(Array.isArray(value)){<br>            const augment = hasProto ? protoAugment : copyAugment;<br>            augment(value, arrayMethods, arrayKeys);<br>        } else {<br>            this.walk(value);<br>        }<br>    }<br>}<br>function protoAugment(target, src, keys){<br>    target.<strong>proto</strong> = src;<br>}<br>function copyAugment(target, src, keys){<br>    for(let i = 0, l = keys.length;i &lt; l;i++){<br>        const key = keys[i];<br>        def(target, key, src[key]);<br>    }<br>}</p>
+<pre><code>##### 如何收集依赖
+我们创建拦截器实际上是为了获得一种能力，一种感知数组内容发生变化的能力。现在具备了这个能力，要通知谁呢？根据前面对Object的处理，通知Dep中的依赖（Watcher）。
+怎么收集依赖呢？还用getter。
+</code></pre><p>function defineReactive(data, key, val){<br>    if(typeof val = ‘object’){<br>        new Observer(val);<br>    }<br>    let dep = new Dep();<br>    Object.defineProperty(data, key, {<br>        enumerable: true,<br>        configurable: true,<br>        get: function(){<br>            dep.depend();<br>            // 这里收集依赖<br>            return val;<br>        },<br>        set: function(newVal){<br>            if(val === newVal){<br>                return;<br>            }<br>            dep.notify();<br>            val = newVal;<br>        }<br>    })<br>}</p>
+<pre><code>新增了一段注释，也就是说**Array在getter中收集依赖，在拦截器触发依赖**。
+##### 依赖收集在哪
+</code></pre><p>export class Observer{<br>    constructor(value){<br>        this.value = value;<br>        this.dep = new Dep(); // 新增dep<br>        if(Array.isArray(value)){<br>            const augment = hasProto ? protoAugment : copyAugment;<br>            augment(value, arrayMethods, arrayKeys);<br>        } else {<br>            this.walk(value);<br>        }<br>    }<br>}</p>
+<pre><code>Vue将依赖列表存在了Observer，为什么是这里？
+前面说Array在getter中收集依赖，在拦截器触发依赖，所以依赖的位置很关键，保证getter要访问的到，拦截器也访问的到。
+##### 收集依赖
+Dep实例保存在Observer的属性上后，我们开始收集依赖。
+</code></pre><p>function defineReactive(data, key, val){<br>    let childOb = observe(val); // 修改<br>    let dep = new Dep();<br>    Object.defineProperty(data, key, {<br>        enumerable: true,<br>        configurable: true,<br>        get: function(){<br>            dep.depend();</p>
+<pre><code>        // 新增
+        if(childOb){
+            childOb.dep.depend();
+        }
+        return val;
+    },
+    set: function(newVal){
+        if(val === newVal){
+            return;
+        }
+        dep.notify();
+        val = newVal;
+    }
+})
+</code></pre><p>}</p>
+<p>export function observe(value, asRootData){<br>    if(!isObject(value)){<br>        return;<br>    }<br>    let ob;<br>    if(hasOwn(value, ‘<strong>ob</strong>‘)&amp;&amp;value.<strong>ob</strong> instanceof Observer) {<br>        ob = value.<strong>ob</strong>;<br>    } else {<br>        ob = observe(val);<br>    }<br>    return ob;<br>}</p>
+<pre><code>增加一个childOb 的意义到底是啥？在于搭建了从getter把依赖收集到Observer的dep中的桥梁。
+##### 在拦截器中获取Observer
+因为拦截器是对数组原型的封装，所以拦截器可以访问到this（正在被操作的数组）。而dep在Observer中，所以需要在this上读到Observer实例。
+</code></pre><p>// 工具函数<br>function def(obj, key, val, enumerable){<br>    Object.defineProperty(obj, key, {<br>        value: val,<br>        enumerable: !!enumerable,<br>        writeable: true,<br>        configurable: true<br>    })<br>}<br>export class Observer{<br>    constructor(value){<br>        this.value = value;<br>        this.dep = new Dep();<br>        def(value, ‘<strong>ob</strong>‘, this); // 新增<br>        if(Array.isArray(value)){<br>            const augment = hasProto ? protoAugment : copyAugment;<br>            augment(value, arrayMethods, arrayKeys);<br>        } else {<br>            this.walk(value);<br>        }<br>    }<br>}</p>
+<pre><code>现在Observer实例已经存入数组中```__ob__```属性，下一步就是在拦截器中获取。
+</code></pre><p>const arrayProto = Array.prototype;<br>export const arrayMethods = Object.create(arrayProto);<br>[<br>    ‘push’,<br>    ‘pop’,<br>    ‘shift’,<br>    ‘unshift’,<br>    ‘splice’,<br>    ‘sorte’,<br>    ‘reverse’<br>].forEach(function(method){<br>    const original = arrayProto[method];<br>    Object.defineProperty(arrayMethods, method, {<br>        value: function mutator(…args){<br>            const ob = this.<strong>ob</strong>; // 新增<br>            return original.apply(this, args);<br>        },<br>        enumerable: false,<br>        writeable: ture,<br>        configurable: true<br>    })<br>})</p>
+<pre><code>##### 向数组的依赖发通知
+</code></pre><p>const arrayProto = Array.prototype;<br>export const arrayMethods = Object.create(arrayProto);<br>[<br>    ‘push’,<br>    ‘pop’,<br>    ‘shift’,<br>    ‘unshift’,<br>    ‘splice’,<br>    ‘sorte’,<br>    ‘reverse’<br>].forEach(function(method){<br>    const original = arrayProto[method];<br>    Object.defineProperty(arrayMethods, method, {<br>        value: function mutator(…args){<br>            const ob = this.<strong>ob</strong>;<br>            ob.dep.notify(); // 向依赖发通知<br>            return original.apply(this, args);<br>        },<br>        enumerable: false,<br>        writeable: ture,<br>        configurable: true<br>    })<br>})<br><code>`</code><br>既然能获取到Observer实例和里面的依赖列表了，就直接调用notify。</p>
+<blockquote>
+<p>剩下的内容就是获取数组元素变化，以及Vue的处理方式的弊端，另开一篇写吧。</p>
+</blockquote>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Vue</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+                    <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
+  </div>
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+
+    
+    
+ 
+</div>
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint linenums');
+              prettyPrint();
+          })
+      </script>
+    
+  
+</body>
+</html>

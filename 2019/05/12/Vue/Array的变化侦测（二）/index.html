@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content>
+    <meta name="author" content="Atlas-lili">
+    <meta name="keywords" content>
+    <title>Array的变化侦测（二） ~ Atlas-lili&#39;s Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/tomorrow-night-eighties.min.css">
+    
+</head>
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>Atlas-lili&#39;s Blog</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://www.abnerchou.me/hexo-theme-react//assets/images/team/whiteboard.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">Array的变化侦测（二）</p>
+            <br>
+            
+            <p>Sunday, May 12th 2019, 9:07 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="post-content py-5 z-depth-3 main">
+                <h5 id="侦测数组中元素变化"><a href="#侦测数组中元素变化" class="headerlink" title="侦测数组中元素变化"></a>侦测数组中元素变化</h5><p>侦测数组的变化类比对Object的递归处理，我们也需要监测子项的变化。<br>另外，数组与对象的使用需求有些不同，数组要求新增的项依然能够被监测到<em>（想象你对一个响应式的数组push一个子数组，后面操作这个子数组时，页面没反应，就显得奇怪了！）</em>。<br>首先做对子项的侦测：</p>
+<pre><code>export class Observer{
+    constructor(value){
+        this.value = value;
+        def(value, &#39;__ob__&#39;, this);
+        if(Array.isArray(value)){
+            this.observeArray(value);
+        } else {
+            this.walk(value);
+        }
+    }
+    observeArray(items){
+        for(let i = 0, l = keys.length;i &lt; l;i++){
+            observe(items[i]);
+        }
+    }
+}
+</code></pre><p>像这样对数组进行递归的处理就可以做到子项变成响应式的了。</p>
+<h5 id="侦测新增元素的变化"><a href="#侦测新增元素的变化" class="headerlink" title="侦测新增元素的变化"></a>侦测新增元素的变化</h5><pre><code>[
+    &#39;push&#39;,
+    &#39;pop&#39;,
+    &#39;shift&#39;,
+    &#39;unshift&#39;,
+    &#39;splice&#39;,
+    &#39;sorte&#39;,
+    &#39;reverse&#39;
+].forEach(function(method){
+    const original = arrayProto[method];
+    def(arrayMethods, method, function mutator(...args){
+            const ob = this.__ob__;
+            let inserted;
+            switch(method){
+                case &#39;push&#39;:
+                case &#39;unshift&#39;:
+                    inserted = args;
+                    break;
+                case &#39;splice&#39;:
+                    inserted = args.slice(2);
+                    break;
+            }
+            ob.dep.notify();
+            return original.apply(this, args);
+        })
+})
+</code></pre><p>不难发现九个方法中，可以新增元素的只有前插、后插和插入操作，捕捉响应的参数就好了。<br>获取的到新增元素的话就可以递归的把这些变成响应式数据了。</p>
+<pre><code>[
+    &#39;push&#39;,
+    &#39;pop&#39;,
+    &#39;shift&#39;,
+    &#39;unshift&#39;,
+    &#39;splice&#39;,
+    &#39;sorte&#39;,
+    &#39;reverse&#39;
+].forEach(function(method){
+    const original = arrayProto[method];
+    def(arrayMethods, method, function mutator(...args){
+            const ob = this.__ob__;
+            let inserted;
+            switch(method){
+                case &#39;push&#39;:
+                case &#39;unshift&#39;:
+                    inserted = args;
+                    break;
+                case &#39;splice&#39;:
+                    inserted = args.slice(2);
+                    break;
+            }
+            if(inserted) ob.observeArray(inserted); // 新增
+            ob.dep.notify();
+            return original.apply(this, args);
+        })
+})
+</code></pre><h5 id="侦测数组的缺陷"><a href="#侦测数组的缺陷" class="headerlink" title="侦测数组的缺陷"></a>侦测数组的缺陷</h5><p>由于是通过拦截原型方法完成响应，因此，对于通过[]直接修改和对length的赋值无法侦测。</p>
+<pre><code>this.list[0] = 2;
+this.list.length = 0;
+</code></pre>
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;Vue</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+                    <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
+  </div>
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+
+    
+    
+ 
+</div>
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint linenums');
+              prettyPrint();
+          })
+      </script>
+    
+  
+</body>
+</html>

@@ -86,6 +86,60 @@
 <div class="row mb-3">
 
 <div class="col-12 col-md-8 offset-md-2">
+    <a href="/2019/05/12/Vue/Array的变化侦测（二）/" class="h4" style="font-weight: 700;">Array的变化侦测（二）</a>
+    
+      <p class="mb-1">侦测数组中元素变化侦测数组的变化类比对Object的递归处理，我们也需要监测子项的变化。另外，数组与对象的使用需求有些不同，数组要求新增的项依然能够被监测到（想象你对一个响应式的数组push一个子数组，后面操作这个子数组时，页面没反应，就显得奇怪了！）。首先做对子项的侦测：
+export class Observer{
+    constructor(value){
+        this.value = value;
+        def(value, &#39;__ob__&#39;, this);
+        if(Array.isArray(value)){
+         ...</p>
+    
+    
+      <p>
+        <i class="iconfont icon-riqi2"></i>&nbsp;2019-05-12
+        &nbsp;
+        
+            <i class="iconfont icon-cc-tag-more"></i>
+            
+                Vue&nbsp;
+            
+        
+      </p>
+    
+</div>
+</div>
+
+<div class="row mb-3">
+
+<div class="col-12 col-md-8 offset-md-2">
+    <a href="/2019/05/12/Vue/Array的变化侦测（一）/" class="h4" style="font-weight: 700;">Array的变化侦测（一）</a>
+    
+      <p class="mb-1">如何追踪变化为什么对于Array的侦测方式和Object的不同？如下一句push操作，调用的是数组原型上的方法改变数组，不会触发getter/setter。
+this.list.push(1);
+在ES6之前，JavaScript并没有提供元编程的能力，足以拦截原型方法。Vue的做法是写自定义方法覆盖原型方法。
+用一个拦截器覆盖Array.prototype，每当我们调用原型方法操作数组时，调用的都是自定义方法，就可以跟踪到变化了。
+拦截器拦截器和Array.prototype一样也是一个对象，包含的属性也一样，只是一些能改变数组的方法是处理过的。整理一下，发现数组原型可以改变数组自身内容的方...</p>
+    
+    
+      <p>
+        <i class="iconfont icon-riqi2"></i>&nbsp;2019-05-12
+        &nbsp;
+        
+            <i class="iconfont icon-cc-tag-more"></i>
+            
+                Vue&nbsp;
+            
+        
+      </p>
+    
+</div>
+</div>
+
+<div class="row mb-3">
+
+<div class="col-12 col-md-8 offset-md-2">
     <a href="/2019/05/10/Vue/Object变化侦测/" class="h4" style="font-weight: 700;">Object变化侦测</a>
     
       <p class="mb-1">什么是变化侦测运行时，内部状态可能会发生变化，相应页面要重新渲染，变化侦测就是弄清楚是哪里发生了变化。从实现的方案上分为两种：react（虚拟DOM）和angular（脏检查）使用的是“拉”的方案，vue使用的是“推”的方案。拉的方案实际上不知道是哪里发生的变化，要通过暴力对比的方法来查找。推的方案就不同了，它实际是知道哪里发生了变化，可以进行更“细”的更新，缺点就是随着粒度的变细，每个状态所绑定的依赖就越多，依赖追踪的内存开销就越大。Vue2.0开始引入了虚拟DOM，变成了一个折中的方案，状态绑定的不再是DOM节点而是组件。当状态发生变化通知到组件一级，组件内再进行虚拟DOM对比。
@@ -322,44 +376,20 @@ promise（一道看程序题，同步、promise、then、settimeout、回调执�
     
 </div>
 </div>
-
-<div class="row mb-3">
-
-<div class="col-12 col-md-8 offset-md-2">
-    <a href="/2019/04/02/面经/小白的前端春实习面经（一）/" class="h4" style="font-weight: 700;">小白的前端春实习面经（一）</a>
-    
-      <p class="mb-1">
-本白三月十二日递的蚂蚁金服的内推，至今日半月多惨淡收场，有笑有泪。
-
-在线笔试（十五日左右）
-非递归深度优先
-
-var tree = {
-    name : &#39;中国&#39;,
-    children : [
-        {    name : &#39;北京&#39;,
-            children : [
-                {    name : &#39;朝阳群众&#39;  },
-                {    name : &#39;海淀区&#39;    },
-                {    name : &#39;昌...</p>
-    
-    
-      <p>
-        <i class="iconfont icon-riqi2"></i>&nbsp;2019-04-02
-        &nbsp;
-        
-            <i class="iconfont icon-cc-tag-more"></i>
-            
-                面经&nbsp;
-            
-        
-      </p>
-    
-</div>
-</div>
  
 <br><br>
 
+
+<nav aria-label="index posts navigation">
+<ul class="pagination pg-blue justify-content-center mt-5">
+    
+    
+        <li class="page-item">
+        <a class="page-link" href="/page/2/">Next</a>
+        </li>
+    
+</ul>
+</nav>
 
           </div>
         </div>
