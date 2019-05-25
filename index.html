@@ -86,6 +86,33 @@
 <div class="row mb-3">
 
 <div class="col-12 col-md-8 offset-md-2">
+    <a href="/2019/05/25/面经/web worker接触一下/" class="h4" style="font-weight: 700;">web worker接触一下</a>
+    
+      <p class="mb-1">
+对于小球运动的场景题，后来在掘金看到了系统的答法（链表树、web worker …）。别人说webworker是应该了解的，但是我之前没接触过，了解一下吧。
+
+什么是web worker当在 HTML 页面中执行脚本时，页面的状态是不可响应的，直到脚本已完成。web worker 是运行在后台的 js线程，不似js主线程与渲染引擎公用。Worker 线程一旦新建成功，就会始终运行，这样有利于随时响应主线程的通信。但是，这也造成了 Worker 比较耗费资源，不应该过度使用，而且一旦使用完毕，就应该关闭。兼容性上IE之外的浏览器都支持！
+检测 Web Worker 支持官网给出的方法。
+if(...</p>
+    
+    
+      <p>
+        <i class="iconfont icon-riqi2"></i>&nbsp;2019-05-25
+        &nbsp;
+        
+            <i class="iconfont icon-cc-tag-more"></i>
+            
+                面经&nbsp;
+            
+        
+      </p>
+    
+</div>
+</div>
+
+<div class="row mb-3">
+
+<div class="col-12 col-md-8 offset-md-2">
     <a href="/2019/05/12/Vue/Array的变化侦测（二）/" class="h4" style="font-weight: 700;">Array的变化侦测（二）</a>
     
       <p class="mb-1">侦测数组中元素变化侦测数组的变化类比对Object的递归处理，我们也需要监测子项的变化。另外，数组与对象的使用需求有些不同，数组要求新增的项依然能够被监测到（想象你对一个响应式的数组push一个子数组，后面操作这个子数组时，页面没反应，就显得奇怪了！）。首先做对子项的侦测：
@@ -330,46 +357,6 @@ if (!Object.getPrototypeOf) {
             <i class="iconfont icon-cc-tag-more"></i>
             
                 polyfill&nbsp;
-            
-        
-      </p>
-    
-</div>
-</div>
-
-<div class="row mb-3">
-
-<div class="col-12 col-md-8 offset-md-2">
-    <a href="/2019/04/03/面经/小白的前端春实习面经（二）/" class="h4" style="font-weight: 700;">小白的前端春实习面经（二）</a>
-    
-      <p class="mb-1">
-本白三月十二日递的蚂蚁金服的内推，至今日半月多惨淡收场，有笑有泪。
-
-北京一面（二十六号）
-算法：模块编译时怎么处理依赖关系？
-网络：服务器高并发的解决方案？
-url到界面显示的过程。
-闭包描述，弊端，解决方案。
-水平垂直居中。
-vuex设计思想，为啥要有Action？
-promise（一道看程序题，同步、promise、then、settimeout、回调执行顺序）。
-响应式布局，rem？
-数组删元素的方法。
-服务器缓存。
-数据结构中的图。
-弹性盒模型。
-看过什么源码吗，设计思路？
-移动端1px解决方法。北京二面（三十号）
-三道看程序输出结果，如何改进（三种以上）。这个输出结果本来看懵了，...</p>
-    
-    
-      <p>
-        <i class="iconfont icon-riqi2"></i>&nbsp;2019-04-03
-        &nbsp;
-        
-            <i class="iconfont icon-cc-tag-more"></i>
-            
-                面经&nbsp;
             
         
       </p>
