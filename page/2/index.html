@@ -86,6 +86,35 @@
 <div class="row mb-3">
 
 <div class="col-12 col-md-8 offset-md-2">
+    <a href="/2019/04/08/polyfill/polyfill源码阅读（一）ES5/" class="h4" style="font-weight: 700;">polyfill源码阅读（一）ES5</a>
+    
+      <p class="mb-1">
+这是蚂蚁面试官推荐我读的一个项目的源码，可能因为代码结构比较简单，主要解决兼容性，对于前端小白来说比较有用吧。
+
+Object.getPrototypeOf ( O )该静态方法用来返回参数的原型对象。
+if (!Object.getPrototypeOf) {
+  Object.getPrototypeOf = function (o) {
+    if (o !== Object(o)) { throw TypeError(&quot;Object.getPrototypeOf called on non-object&quot;); }
+    return o.__proto__ |...</p>
+    
+    
+      <p>
+        <i class="iconfont icon-riqi2"></i>&nbsp;2019-04-08
+        &nbsp;
+        
+            <i class="iconfont icon-cc-tag-more"></i>
+            
+                polyfill&nbsp;
+            
+        
+      </p>
+    
+</div>
+</div>
+
+<div class="row mb-3">
+
+<div class="col-12 col-md-8 offset-md-2">
     <a href="/2019/04/03/面经/小白的前端春实习面经（二）/" class="h4" style="font-weight: 700;">小白的前端春实习面经（二）</a>
     
       <p class="mb-1">
