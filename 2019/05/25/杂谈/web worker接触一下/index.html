@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content>
+    <meta name="author" content="Atlas-lili">
+    <meta name="keywords" content>
+    <title>web worker接触一下 ~ Atlas-lili&#39;s Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/tomorrow-night-eighties.min.css">
+    
+</head>
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>Atlas-lili&#39;s Blog</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://www.abnerchou.me/hexo-theme-react//assets/images/team/whiteboard.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">web worker接触一下</p>
+            <br>
+            
+            <p>Saturday, May 25th 2019, 5:03 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="post-content py-5 z-depth-3 main">
+                <blockquote>
+<p>对于小球运动的场景题，后来在掘金看到了系统的答法（链表树、web worker …）。别人说webworker是应该了解的，但是我之前没接触过，了解一下吧。</p>
+</blockquote>
+<h5 id="什么是web-worker"><a href="#什么是web-worker" class="headerlink" title="什么是web worker"></a>什么是web worker</h5><p>当在 HTML 页面中执行脚本时，页面的状态是不可响应的，直到脚本已完成。<br>web worker 是运行在后台的 js线程，不似js主线程与渲染引擎公用。Worker 线程一旦新建成功，就会始终运行，这样有利于随时响应主线程的通信。但是，这也造成了 Worker 比较耗费资源，不应该过度使用，而且一旦使用完毕，就应该关闭。<br>兼容性上<strong>IE之外的浏览器都支持！</strong></p>
+<h5 id="检测-Web-Worker-支持"><a href="#检测-Web-Worker-支持" class="headerlink" title="检测 Web Worker 支持"></a>检测 Web Worker 支持</h5><p>官网给出的方法。</p>
+<pre><code>if(typeof Worker !==&quot;undefined&quot;) {
+  // Yes! Web worker support!
+  // Some code.....
+} else {
+  // Sorry! No Web Worker support..
+}
+</code></pre><p>实际上，要用一个变量存放 Worker 线程对象还需要判断它是不是正存放一个Worker线程对象。</p>
+<pre><code>if(typeof Worker !==&quot;undefined&quot;) {
+  // Yes! Web worker support!
+  if(!myworker instanceof Worker ){
+    // You can new a Web Worker!
+  }
+} else {
+  // Sorry! No Web Worker support..
+}
+</code></pre><h5 id="创建-web-worker-文件"><a href="#创建-web-worker-文件" class="headerlink" title="创建 web worker 文件"></a>创建 web worker 文件</h5><p>创建一个js文件，用于载入worker线程</p>
+<pre><code>var data=10;
+
+self.onmessage = function(e){
+  console.log(e);
+  for(i=0;i&lt;data;i++){
+    console.log(&#39;worker: &#39;+i);
+    //计算的代码
+  }
+  postMessage(data);
+}
+</code></pre><h5 id="开启worker线程"><a href="#开启worker线程" class="headerlink" title="开启worker线程"></a>开启worker线程</h5><p>在主线程开启woker线程</p>
+<pre><code>var worker = new Worker(&#39;子线程文件名.js&#39;),
+worker.postMessage(i);
+worker.onmessage = function(e){
+  console.log(e.data);
+}
+</code></pre><blockquote>
+<p>两次看见了postMessage和onmessage ，postMessage用于向一端发送数据，onmessage用于在另一端监听数据。不巧的是，一番尝试，主线程先发，子线程只能在监听里回复，像一个请求响应一样。可能这就是主线程是主线程吧。</p>
+</blockquote>
+<h5 id="终止worker线程"><a href="#终止worker线程" class="headerlink" title="终止worker线程"></a>终止worker线程</h5><pre><code>worker.terminate();
+</code></pre><h5 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h5><p>（1）同源限制<br>分配给 Worker 线程运行的脚本文件，必须与主线程的脚本文件同源。<br>（2）DOM 限制<br>Worker 线程所在的全局对象，与主线程不一样，无法读取主线程所在网页的 <code>DOM</code> 对象，也无法使用<code>document</code>、<code>window</code>、<code>parent</code>这些对象。但是，Worker 线程可以<code>navigator</code>对象和<code>location</code>对象，还有自己作用域的<code>self</code>对象。<br>（3）通信联系<br>Worker 线程和主线程不在同一个上下文环境，它们不能直接通信，必须通过消息完成。<br>（4）脚本限制<br>Worker 线程不能执行<code>alert()</code>方法和<code>confirm()</code>方法，但可以使用 <code>XMLHttpRequest</code>对象发出 AJAX 请求。<br>（5）文件限制<br>Worker 线程无法读取本地文件，即不能打开本机的文件系统（file://），它所加载的脚本，必须来自网络。</p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;杂谈</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+                    <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
+  </div>
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+
+    
+    
+ 
+</div>
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint linenums');
+              prettyPrint();
+          })
+      </script>
+    
+  
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content>
+    <meta name="author" content="Atlas-lili">
+    <meta name="keywords" content>
+    <title>GZIP——静态资源压缩 ~ Atlas-lili&#39;s Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1067060_vr10bjtg3us.css">
+    
+        <link rel="stylesheet" href="/css/Prettify/tomorrow-night-eighties.min.css">
+    
+</head>
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+<div class="container">
+    <a class="navbar-brand" href="/"><strong>Atlas-lili&#39;s Blog</strong></a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto text-center">
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/archives/">Archives</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+</div>
+
+
+</nav>
+    <div class="view intro-2" style='background: url("https://www.abnerchou.me/hexo-theme-react//assets/images/team/whiteboard.jpg")no-repeat center center;background-size: cover;'>
+    <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+        <div class="container text-center white-text wow fadeInUp">
+            <p class="h2">GZIP——静态资源压缩</p>
+            <br>
+            
+            <p>Saturday, October 12th 2019, 7:32 pm</p>
+            
+        </div>
+        </div>
+    </div>
+    </div>
+  </header>
+
+  <main>
+  
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 ">
+            <div class="post-content py-5 z-depth-3 main">
+                <p>上一次，小白写的vue页面经打包部署到了服务器，不过白屏的等待太过分了。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-2b5b391b02179d9d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="白屏分析1.png"><br>看了一下一次刷新的白屏分析，<strong>chunk-vendors.js</strong>就是这货的加载最耽误时间，想起了之前听过的GZIP压缩。</p>
+<h4 id="GZIP是啥"><a href="#GZIP是啥" class="headerlink" title="GZIP是啥"></a>GZIP是啥</h4><p>gzip是GNUzip的缩写，最早用于UNIX系统的文件压缩。HTTP协议上的gzip编码是一种用来改进web应用程序性能的技术。<br><strong>服务端压缩文件–&gt;网络传输–&gt;客户端解压文件</strong><br>web服务器和客户端（浏览器）必须共同支持gzip。目前主流的浏览器，Chrome,firefox,IE等都支持该协议。<br>gzip压缩大大节省服务器的网络带宽，但是并不是对所有文件进行压缩（例如，很多图片gzip压缩的收益就不明显），通常只是压缩静态文件。究其原因，gzip压缩是在一个文本文件中找出一些重复出现的字符串、临时替换它们，从而使整个文件变小。根据这个原理，文件中代码的重复率越高，那么压缩的效率就越高，使用 Gzip 的收益也就越大。反之亦然。<br><img src="https://upload-images.jianshu.io/upload_images/8553902-1ac3fa42ceaffc82.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="原理图.png"></p>
+<h4 id="webpack进行GZIP压缩"><a href="#webpack进行GZIP压缩" class="headerlink" title="webpack进行GZIP压缩"></a>webpack进行GZIP压缩</h4><p><code>cnpm i compression-webpack-plugin -D</code></p>
+<pre><code>// vue.config.js
+const CompressionWebpackPlugin = require(&#39;compression-webpack-plugin&#39;);
+const productionGzipExtensions = [&#39;js&#39;, &#39;css&#39;];
+const isProduction = process.env.NODE_ENV === &#39;production&#39;;
+module.exports = {
+ configureWebpack: config =&gt; {
+    if (isProduction) {
+      config.plugins.push(new CompressionWebpackPlugin({
+        algorithm: &#39;gzip&#39;,
+        test: new RegExp(&#39;\\.(&#39; + productionGzipExtensions.join(&#39;|&#39;) + &#39;)$&#39;),
+        threshold: 10240, // 只处理比这个值大的资源。按字节计算
+        minRatio: 0.8 // 只有压缩率比这个值小的资源才会被处理
+      }))
+    }
+  }
+};
+</code></pre><p><a href="https://www.webpackjs.com/plugins/compression-webpack-plugin/" target="_blank" rel="noopener">compression-webpack-plugin配置文档</a></p>
+<h4 id="Koa2开启GZIP压缩"><a href="#Koa2开启GZIP压缩" class="headerlink" title="Koa2开启GZIP压缩"></a>Koa2开启GZIP压缩</h4><p><code>cnpm i koa-compress -S</code></p>
+<pre><code>const Koa = require(&#39;koa&#39;);
+const app = new Koa();
+const compress = require(&#39;koa-compress&#39;);
+
+app.use(compress(options));
+
+</code></pre><p><a href="https://www.npmjs.com/package/koa-compress" target="_blank" rel="noopener">koa-compress配置文档</a></p>
+<h4 id="两种方案的关系"><a href="#两种方案的关系" class="headerlink" title="两种方案的关系"></a>两种方案的关系</h4><p>webpack只负责打包出静态文件，也就是直接产出<code>.gz</code>压缩后的文件。[速冻饺子]</p>
+<p>koa的实现是当请求到达服务器，服务器压缩对应的文件给出响应（是会消耗运转中的服务器的CPU的），一般用于有专职前端服务器群的项目。[新鲜包的饺子]</p>
+<hr>
+<p>开启GZIP后3.5s降到了1.5s，<strong>chunk-vendors.js</strong>这货也从800k降到了200k，看起来可以呦~<br><img src="https://upload-images.jianshu.io/upload_images/8553902-8eccf4529f5b6494.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="白屏分析2.png"></p>
+
+                <hr>
+                <div>
+                    <p>
+                         
+                        <span class="badge badge-light">#&nbsp;杂谈</span>
+                        &nbsp;
+                        
+                    </p>
+                </div>
+                <br>
+                
+                    <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+                
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-2">
+            
+  <div id="toc" class="py-5">
+    <p class="h6"><i class="iconfont icon-toc" style="vertical-align:middle"></i> Toc:</p> 
+    <div id="tocbot"></div>
+  </div>
+
+        </div>
+    </div>        
+</div>
+
+<br><br><br>
+
+<!-- Comments -->
+<div class="comments" id="comments">
+
+    
+    
+ 
+</div>
+  
+  </main>
+
+<footer class="mt-5">
+  <div class="text-center py-3">
+    <a href="https://hexo.io" target="_blank"><b>HEXO</b></a>
+    <i class="iconfont icon-love"></i>
+    <a href="https://github.com/0x2e/Material-T" target="_blank"> <b>Material-T</b></a>
+  </div>
+</footer>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/js/mdb.min.js"></script>
+  <script src="/js/main.js"></script>
+  
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.4.2/tocbot.min.js"></script>
+    
+    <script src="/js/post.js"></script>
+    
+      <script src="/js/plugins/prettify.js"></script>
+      <script>
+          $(document).ready(function(){
+              $('pre').addClass('prettyprint linenums');
+              prettyPrint();
+          })
+      </script>
+    
+  
+</body>
+</html>

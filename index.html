@@ -86,7 +86,87 @@
 <div class="row mb-3">
 
 <div class="col-12 col-md-8 offset-md-2">
-    <a href="/2019/06/07/面经/多人开发的大项目是什么样子的/" class="h4" style="font-weight: 700;">多人开发的大项目是什么样子的</a>
+    <a href="/2019/10/12/杂谈/GZIP——静态资源压缩/" class="h4" style="font-weight: 700;">GZIP——静态资源压缩</a>
+    
+      <p class="mb-1">上一次，小白写的vue页面经打包部署到了服务器，不过白屏的等待太过分了。看了一下一次刷新的白屏分析，chunk-vendors.js就是这货的加载最耽误时间，想起了之前听过的GZIP压缩。
+GZIP是啥gzip是GNUzip的缩写，最早用于UNIX系统的文件压缩。HTTP协议上的gzip编码是一种用来改进web应用程序性能的技术。服务端压缩文件–&gt;网络传输–&gt;客户端解压文件web服务器和客户端（浏览器）必须共同支持gzip。目前主流的浏览器，Chrome,firefox,IE等都支持该协议。gzip压缩大大节省服务器的网络带宽，但是并不是对所有文件进行压缩（例如，很多图片gzip压...</p>
+    
+    
+      <p>
+        <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-12
+        &nbsp;
+        
+            <i class="iconfont icon-cc-tag-more"></i>
+            
+                杂谈&nbsp;
+            
+        
+      </p>
+    
+</div>
+</div>
+
+<div class="row mb-3">
+
+<div class="col-12 col-md-8 offset-md-2">
+    <a href="/2019/10/11/杂谈/Travis+Github实践持续集成部署node服务/" class="h4" style="font-weight: 700;">Travis+Github实践持续集成部署node服务</a>
+    
+      <p class="mb-1">Travis持续集成，小名CI，分为自动化构建和单元测试，名词吓人，其实就是为了快捷且风险可控地把程序部署到服务器上而存在的。小白听过的CI除了Travis，就是Jenkins，以及GitHub Actions新集成了相应的功能。考虑起来，我并没有多余的服务器来托管代码，所以选了免费的分布式提供测试环境的Travis。
+前期准备
+
+一个Github仓库，盛放了本地调试通过的后台程序
+本地电脑配置GitHub账号的SSH keys，支持免密提交
+如果要部署，还需要一台服务器（本文针对CentOS 7.6 64位），配置node环境，clone代码仓库且配置GitHub账号的SSH keys
+
+
+...</p>
+    
+    
+      <p>
+        <i class="iconfont icon-riqi2"></i>&nbsp;2019-10-11
+        &nbsp;
+        
+            <i class="iconfont icon-cc-tag-more"></i>
+            
+                杂谈&nbsp;
+            
+        
+      </p>
+    
+</div>
+</div>
+
+<div class="row mb-3">
+
+<div class="col-12 col-md-8 offset-md-2">
+    <a href="/2019/07/28/杂谈/XSS攻击杂谈/" class="h4" style="font-weight: 700;">XSS攻击杂谈</a>
+    
+      <p class="mb-1">
+不存在一个提及XSS攻击就都可以应付的通法。需要根据需求思考可能存在的攻击点，做对应的处理。
+
+什么是XSS攻击XSS大名叫CSS  (Cross Site Script) ，跨站脚本攻击。它指的是恶意攻击者往Web页面里插入恶意html代码，当用户浏览该页之时，嵌入其中Web里面的html代码会被执行，从而达到恶意用户的特殊目的。下面就一个url传参的然后在某个地方展现参数文本的场景讨论
+XSS攻击分类反射型：后端读取参数，参数夹杂在响应中。存储型：后端读取参数、存储，需要拉取数据时返回给前端。DOM型：前端读取参数（路由传参），参数插入在DOM结构中。
+防御XSSX-XSS-Protec...</p>
+    
+    
+      <p>
+        <i class="iconfont icon-riqi2"></i>&nbsp;2019-07-28
+        &nbsp;
+        
+            <i class="iconfont icon-cc-tag-more"></i>
+            
+                杂谈&nbsp;
+            
+        
+      </p>
+    
+</div>
+</div>
+
+<div class="row mb-3">
+
+<div class="col-12 col-md-8 offset-md-2">
+    <a href="/2019/06/07/杂谈/多人开发的大项目是什么样子的/" class="h4" style="font-weight: 700;">多人开发的大项目是什么样子的</a>
     
       <p class="mb-1">自学前端的小白从来都是个人开发，最多上传一下git仓库。有一天如果我需要一个帮手，[好吧]组件化，让他不要动我的，开发完了再合。。。
 
@@ -102,7 +182,7 @@
         
             <i class="iconfont icon-cc-tag-more"></i>
             
-                面经&nbsp;
+                杂谈&nbsp;
             
         
       </p>
@@ -113,7 +193,7 @@
 <div class="row mb-3">
 
 <div class="col-12 col-md-8 offset-md-2">
-    <a href="/2019/05/25/面经/web worker接触一下/" class="h4" style="font-weight: 700;">web worker接触一下</a>
+    <a href="/2019/05/25/杂谈/web worker接触一下/" class="h4" style="font-weight: 700;">web worker接触一下</a>
     
       <p class="mb-1">
 对于小球运动的场景题，后来在掘金看到了系统的答法（链表树、web worker …）。别人说webworker是应该了解的，但是我之前没接触过，了解一下吧。
@@ -129,7 +209,7 @@ if(...</p>
         
             <i class="iconfont icon-cc-tag-more"></i>
             
-                面经&nbsp;
+                杂谈&nbsp;
             
         
       </p>
@@ -257,99 +337,6 @@ function CustomEvent ( event, params ) {
     
       <p>
         <i class="iconfont icon-riqi2"></i>&nbsp;2019-04-23
-        &nbsp;
-        
-            <i class="iconfont icon-cc-tag-more"></i>
-            
-                polyfill&nbsp;
-            
-        
-      </p>
-    
-</div>
-</div>
-
-<div class="row mb-3">
-
-<div class="col-12 col-md-8 offset-md-2">
-    <a href="/2019/04/22/polyfill/polyfill源码阅读（四）cssom和dom一/" class="h4" style="font-weight: 700;">polyfill源码阅读（四）cssom和dom一</a>
-    
-      <p class="mb-1">cssomElement.getBoundingClientRect()方法返回元素的大小及其相对于视口的位置。
-
-// rect 是一个具有四个属性left、top、right、bottom的DOMRect对象//译者注：DOMRect 是 TextRectangle或 ClientRect 的别称，他们是相同的。var rect = obj.getBoundingClientRect();
-
-// Fix for IE8-&#39;s Element.getBoundingClientRect()
-  if (&#39;TextRectangle&#39; in global &amp;&...</p>
-    
-    
-      <p>
-        <i class="iconfont icon-riqi2"></i>&nbsp;2019-04-22
-        &nbsp;
-        
-            <i class="iconfont icon-cc-tag-more"></i>
-            
-                polyfill&nbsp;
-            
-        
-      </p>
-    
-</div>
-</div>
-
-<div class="row mb-3">
-
-<div class="col-12 col-md-8 offset-md-2">
-    <a href="/2019/04/16/polyfill/polyfill源码阅读（三）XHR/" class="h4" style="font-weight: 700;">polyfill源码阅读（三）XHR</a>
-    
-      <p class="mb-1">
-XHR部分主要处理对IE行为的兼容。
-(function(global) {
-  &#39;use strict&#39;;
-  if (!(&#39;window&#39; in global &amp;&amp; &#39;document&#39; in global))
-    return;
-   // do something
-})(self)
-上来就是一段对传入环境的判断，看起来比较熟悉。
-global.XMLHttpRequest = global.XMLHttpRequest || function() {
-    try { return new ActiveXObjec...</p>
-    
-    
-      <p>
-        <i class="iconfont icon-riqi2"></i>&nbsp;2019-04-16
-        &nbsp;
-        
-            <i class="iconfont icon-cc-tag-more"></i>
-            
-                polyfill&nbsp;
-            
-        
-      </p>
-    
-</div>
-</div>
-
-<div class="row mb-3">
-
-<div class="col-12 col-md-8 offset-md-2">
-    <a href="/2019/04/09/polyfill/polyfill源码阅读（二）HTML/" class="h4" style="font-weight: 700;">polyfill源码阅读（二）HTML</a>
-    
-      <p class="mb-1">
-html部分主要是修改不同浏览器的API的怪异行为。
-(function(global) {
-  &#39;use strict&#39;;
-  if (!(&#39;window&#39; in global &amp;&amp; &#39;document&#39; in global))
-    return;
-    // do something
-})(self)
-一段自执行函数的模块封装，内加执行环境的判断确保后面代码的安全。
-
-document.head返回当前文档中的 &lt;head&gt; 元素。如果有多个 &lt;head&gt; 元素，则返回第一个。
-
-if (!(&...</p>
-    
-    
-      <p>
-        <i class="iconfont icon-riqi2"></i>&nbsp;2019-04-09
         &nbsp;
         
             <i class="iconfont icon-cc-tag-more"></i>

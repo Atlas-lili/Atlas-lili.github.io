@@ -19,7 +19,7 @@
     <meta name="description" content>
     <meta name="author" content="Atlas-lili">
     <meta name="keywords" content>
-    <title>web worker接触一下 ~ Atlas-lili&#39;s Blog</title>
+    <title>XSS攻击杂谈 ~ Atlas-lili&#39;s Blog</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.7.4/css/mdb.min.css">
@@ -66,10 +66,10 @@
     <div class="full-bg-img">
         <div class="mask rgba-black-light flex-center">
         <div class="container text-center white-text wow fadeInUp">
-            <p class="h2">web worker接触一下</p>
+            <p class="h2">XSS攻击杂谈</p>
             <br>
             
-            <p>Saturday, May 25th 2019, 5:03 pm</p>
+            <p>Sunday, July 28th 2019, 3:20 pm</p>
             
         </div>
         </div>
@@ -84,53 +84,25 @@
         <div class="col-md-8 offset-md-2 ">
             <div class="post-content py-5 z-depth-3 main">
                 <blockquote>
-<p>对于小球运动的场景题，后来在掘金看到了系统的答法（链表树、web worker …）。别人说webworker是应该了解的，但是我之前没接触过，了解一下吧。</p>
+<p>不存在一个提及XSS攻击就都可以应付的通法。需要根据需求思考可能存在的攻击点，做对应的处理。</p>
 </blockquote>
-<h5 id="什么是web-worker"><a href="#什么是web-worker" class="headerlink" title="什么是web worker"></a>什么是web worker</h5><p>当在 HTML 页面中执行脚本时，页面的状态是不可响应的，直到脚本已完成。<br>web worker 是运行在后台的 js线程，不似js主线程与渲染引擎公用。Worker 线程一旦新建成功，就会始终运行，这样有利于随时响应主线程的通信。但是，这也造成了 Worker 比较耗费资源，不应该过度使用，而且一旦使用完毕，就应该关闭。<br>兼容性上<strong>IE之外的浏览器都支持！</strong></p>
-<h5 id="检测-Web-Worker-支持"><a href="#检测-Web-Worker-支持" class="headerlink" title="检测 Web Worker 支持"></a>检测 Web Worker 支持</h5><p>官网给出的方法。</p>
-<pre><code>if(typeof Worker !==&quot;undefined&quot;) {
-  // Yes! Web worker support!
-  // Some code.....
-} else {
-  // Sorry! No Web Worker support..
-}
-</code></pre><p>实际上，要用一个变量存放 Worker 线程对象还需要判断它是不是正存放一个Worker线程对象。</p>
-<pre><code>if(typeof Worker !==&quot;undefined&quot;) {
-  // Yes! Web worker support!
-  if(!myworker instanceof Worker ){
-    // You can new a Web Worker!
-  }
-} else {
-  // Sorry! No Web Worker support..
-}
-</code></pre><h5 id="创建-web-worker-文件"><a href="#创建-web-worker-文件" class="headerlink" title="创建 web worker 文件"></a>创建 web worker 文件</h5><p>创建一个js文件，用于载入worker线程</p>
-<pre><code>var data=10;
-
-self.onmessage = function(e){
-  console.log(e);
-  for(i=0;i&lt;data;i++){
-    console.log(&#39;worker: &#39;+i);
-    //计算的代码
-  }
-  postMessage(data);
-}
-</code></pre><h5 id="开启worker线程"><a href="#开启worker线程" class="headerlink" title="开启worker线程"></a>开启worker线程</h5><p>在主线程开启woker线程</p>
-<pre><code>var worker = new Worker(&#39;子线程文件名.js&#39;),
-worker.postMessage(i);
-worker.onmessage = function(e){
-  console.log(e.data);
-}
-</code></pre><blockquote>
-<p>两次看见了postMessage和onmessage ，postMessage用于向一端发送数据，onmessage用于在另一端监听数据。不巧的是，一番尝试，主线程先发，子线程只能在监听里回复，像一个请求响应一样。可能这就是主线程是主线程吧。</p>
+<h5 id="什么是XSS攻击"><a href="#什么是XSS攻击" class="headerlink" title="什么是XSS攻击"></a>什么是XSS攻击</h5><p>XSS大名叫CSS  (Cross Site Script) ，跨站脚本攻击。它指的是恶意攻击者往Web页面里插入恶意html代码，当用户浏览该页之时，嵌入其中Web里面的html代码会被执行，从而达到恶意用户的特殊目的。<br><em>下面就一个url传参的然后在某个地方展现参数文本的场景讨论</em></p>
+<h5 id="XSS攻击分类"><a href="#XSS攻击分类" class="headerlink" title="XSS攻击分类"></a>XSS攻击分类</h5><p>反射型：后端读取参数，参数夹杂在响应中。<br>存储型：后端读取参数、存储，需要拉取数据时返回给前端。<br>DOM型：前端读取参数（路由传参），参数插入在DOM结构中。</p>
+<h5 id="防御XSS"><a href="#防御XSS" class="headerlink" title="防御XSS"></a>防御XSS</h5><h6 id="X-XSS-Protection"><a href="#X-XSS-Protection" class="headerlink" title="X-XSS-Protection"></a>X-XSS-Protection</h6><p>一个浏览器用来防御XSS攻击的HTTP头字段。</p>
+<blockquote>
+<p>X-XSS-Protection: 0<br>X-XSS-Protection: 1<br>X-XSS-Protection: 1; mode=block<br>X-XSS-Protection: 1; report=<reporting-uri></reporting-uri></p>
 </blockquote>
-<h5 id="终止worker线程"><a href="#终止worker线程" class="headerlink" title="终止worker线程"></a>终止worker线程</h5><pre><code>worker.terminate();
-</code></pre><h5 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h5><p>（1）同源限制<br>分配给 Worker 线程运行的脚本文件，必须与主线程的脚本文件同源。<br>（2）DOM 限制<br>Worker 线程所在的全局对象，与主线程不一样，无法读取主线程所在网页的 <code>DOM</code> 对象，也无法使用<code>document</code>、<code>window</code>、<code>parent</code>这些对象。但是，Worker 线程可以<code>navigator</code>对象和<code>location</code>对象，还有自己作用域的<code>self</code>对象。<br>（3）通信联系<br>Worker 线程和主线程不在同一个上下文环境，它们不能直接通信，必须通过消息完成。<br>（4）脚本限制<br>Worker 线程不能执行<code>alert()</code>方法和<code>confirm()</code>方法，但可以使用 <code>XMLHttpRequest</code>对象发出 AJAX 请求。<br>（5）文件限制<br>Worker 线程无法读取本地文件，即不能打开本机的文件系统（file://），它所加载的脚本，必须来自网络。</p>
+<p><strong>0</strong>禁止XSS过滤。<br><strong>1</strong>启用XSS过滤（通常浏览器是默认的）。 如果检测到跨站脚本攻击，浏览器将清除页面（删除不安全的部分）。<br><strong>1; mode=block</strong>用XSS过滤。 如果检测到攻击，浏览器将不会清除页面，而是阻止页面加载。<br><strong>1; report=<reporting-uri></reporting-uri></strong>启用XSS过滤。 如果检测到跨站脚本攻击，浏览器将清除页面并使用CSP <code>report-uri</code>指令的功能发送违规报告。<br>缺点：只拦截HTML属性和节点，浏览器支持性不好。</p>
+<h6 id="过滤"><a href="#过滤" class="headerlink" title="过滤"></a>过滤</h6><p>过滤是面对XSS的常规反应，但是要想好过滤什么。<br><em>怎么让一个参数内容是代码的时候另一边展示代码？</em><br>字符：&gt; –&gt; \&gt; &lt; –&gt; \&lt; &amp; —&gt; \&amp;<br>属性：on开头的统统干掉，src href data 要对url做校验（支持http、https或者相对路径，根据应用场景而定），style（因为老版本浏览器支持css expression，用户需要定制样式可以提供一些定制样式的class）<br>标签：script style link embed（嵌入资源，提防flash脚本） object（浏览器插件）<br><em>可不可以不要一刀切？</em><br>对于css expression可以做一个CSS过滤器不过会增加成本，而对于移动端H5的项目可以不用管，因为expreion已经废弃。<br>对于embed object如果不去除还要设置allowScript为none，等配置。<br><em>如何让用户输入的html在另外的地方作为html解析？</em><br>很少有这样的需求，富文本编辑器也是要点击上方提示样式按钮给特定模板语法的。可以通过白名单过滤解决，但是白名单的方案本身很勉强（受限于任知范围和HTML规范更新的支持）。</p>
+<blockquote>
+<p>对于XSS攻击的处理后端是一定要做的，在前端做会减轻后端的压力。后端也是具备解析HTML能力的（通过自己写的解析器或者开一个浏览器线程），不过对于后端的意义是不同的，作为一个XML节点。</p>
+</blockquote>
 
                 <hr>
                 <div>
                     <p>
                          
-                        <span class="badge badge-light">#&nbsp;面经</span>
+                        <span class="badge badge-light">#&nbsp;杂谈</span>
                         &nbsp;
                         
                     </p>
